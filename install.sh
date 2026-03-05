@@ -11,15 +11,18 @@ CLAUDE_SRC="$SCRIPT_DIR/claude"
 GEMINI_SRC="$SCRIPT_DIR/gemini"
 CODEX_SRC="$SCRIPT_DIR/codex"
 AGENTS_SRC="$SCRIPT_DIR/agents"
+HOOKS_SRC="$SCRIPT_DIR/hooks"
 
 CLAUDE_DEST="$HOME/.claude/commands"
 GEMINI_DEST="$HOME/.gemini/extensions/nox"
 CODEX_DEST="$HOME/.agents/skills"
 AGENTS_DEST="$HOME/.claude/agents"
+HOOKS_DEST="$HOME/.claude/hooks"
 
 INSTALL_CLAUDE=true
 INSTALL_GEMINI=true
 INSTALL_CODEX=true
+INSTALL_HOOKS=false
 USE_SYMLINK=false
 
 for arg in "$@"; do
@@ -27,6 +30,7 @@ for arg in "$@"; do
     --claude-only) INSTALL_GEMINI=false; INSTALL_CODEX=false ;;
     --gemini-only) INSTALL_CLAUDE=false; INSTALL_CODEX=false ;;
     --codex-only)  INSTALL_CLAUDE=false; INSTALL_GEMINI=false ;;
+    --with-hooks)  INSTALL_HOOKS=true ;;
     --symlink)     USE_SYMLINK=true ;;
     --help|-h)
       echo "Nox Installer"
@@ -37,6 +41,7 @@ for arg in "$@"; do
       echo "  --claude-only   Only install Claude Code skills"
       echo "  --gemini-only   Only install Gemini CLI skills"
       echo "  --codex-only    Only install Codex CLI skills"
+      echo "  --with-hooks    Install Claude Code hooks (safety guards, alerts)"
       echo "  --symlink       Symlink instead of copy (auto-updates on git pull)"
       echo "  --help          Show this help"
       exit 0
@@ -132,6 +137,45 @@ if [ "$INSTALL_CLAUDE" = true ] && [ -d "$AGENTS_SRC" ]; then
     done
 
     echo "  -> $agent_count agents installed to $AGENTS_DEST/"
+  fi
+fi
+
+# ── Hooks (Claude Code only, opt-in) ─────────────────────────
+if [ "$INSTALL_HOOKS" = true ] && [ -d "$HOOKS_SRC" ]; then
+  if command -v claude &>/dev/null; then
+    echo "Installing Nox hooks for Claude Code..."
+    mkdir -p "$HOOKS_DEST"
+
+    hook_count=0
+    for hook in "$HOOKS_SRC"/*.sh; do
+      [ -f "$hook" ] || continue
+      name="$(basename "$hook")"
+      install_file "$hook" "$HOOKS_DEST/$name"
+      chmod +x "$HOOKS_DEST/$name"
+      hook_count=$((hook_count + 1))
+    done
+
+    echo "  -> $hook_count hooks installed to $HOOKS_DEST/"
+
+    # Wire hooks into settings.json if not already present
+    SETTINGS="$HOME/.claude/settings.json"
+    if [ -f "$SETTINGS" ]; then
+      # Check if nox hooks are already wired
+      if ! grep -q "destructive-guard" "$SETTINGS" 2>/dev/null; then
+        echo ""
+        echo "  To activate hooks, add them to $SETTINGS under \"hooks\"."
+        echo "  See hooks/README.md for the recommended configuration."
+        echo ""
+        echo "  Quick setup — paste into your settings.json hooks section:"
+        echo "  https://github.com/LDGUEST/NOX-AI-SKILLS#hooks"
+      else
+        echo "  -> Hooks already wired in $SETTINGS"
+      fi
+    else
+      echo "  NOTE: No settings.json found. Create one to activate hooks."
+    fi
+  else
+    echo "Hooks require Claude Code — skipping"
   fi
 fi
 

@@ -294,6 +294,91 @@ In `/nox:full-phase`, 6 of these agents (all except prompt-auditor and monitor) 
 
 ---
 
+## Hooks (7)
+
+Opt-in Claude Code hooks that provide continuous passive protection across ALL Nox and GSD workflows. Install with `bash install.sh --with-hooks`.
+
+| Hook | Event | What It Does |
+|------|-------|-------------|
+| `destructive-guard` | PreToolUse (Bash) | Blocks `rm -rf`, `git reset --hard`, force push, DROP TABLE |
+| `sync-guard` | PreToolUse (Edit\|Write) | Warns if unstaged changes exist (multi-agent collision prevention) |
+| `secret-scanner` | PostToolUse (Write\|Edit) | Scans for leaked API keys, JWTs, AWS/Stripe/GitHub tokens |
+| `debug-reminder` | PostToolUse (Bash) | On failure: "check DEBUGGING.md before re-investigating" |
+| `build-tracker` | PostToolUse (Bash) | Tracks build warning/error counts, alerts on increase |
+| `cost-alert` | PostToolUse (all) | Warns when session cost exceeds threshold (every 20 tool calls) |
+| `notify-complete` | PostToolUse (Bash) | Desktop notification when commands take >60s (macOS/Linux) |
+
+**Two-Layer Defense:** Hooks (Layer 1) run passively on every tool call. Agents (Layer 2) run at pipeline checkpoints. Together they catch issues both as they happen and in aggregate.
+
+```
+Layer 1 (Hooks)  ─── continuous ──── every tool call ──── catches issues in real-time
+Layer 2 (Agents) ─── checkpoint ──── Step 5 of pipeline ── deep analysis on all changes
+```
+
+Especially critical during autonomous execution (`/nox:iterate`, `/nox:unloop`) where no human is watching.
+
+**Configuration:**
+
+| Variable | Default | Purpose |
+|----------|---------|---------|
+| `NOX_COST_THRESHOLD` | `15` | Dollar amount before cost alert fires |
+| `NOX_COST_CHECK_INTERVAL` | `20` | Check cost every N tool calls |
+| `NOX_NOTIFY_THRESHOLD` | `60` | Seconds before command completion notification |
+| `NOX_ALLOW_DESTRUCTIVE` | `0` | Set to `1` to disable destructive guard |
+| `NOX_SECRET_PATTERNS` | — | Path to file with custom secret regex patterns |
+| `NOX_SKIP_*` | — | Set any `NOX_SKIP_SYNC_GUARD`, `NOX_SKIP_SECRET_SCAN`, etc. to `1` to disable individually |
+
+<details>
+<summary>Settings.json configuration (click to expand)</summary>
+
+Add this to your `~/.claude/settings.json` under `"hooks"`:
+
+```json
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {"type": "command", "command": "bash ~/.claude/hooks/sync-guard.sh"}
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {"type": "command", "command": "bash ~/.claude/hooks/destructive-guard.sh"},
+          {"type": "command", "command": "bash ~/.claude/hooks/notify-timer-start.sh"}
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "hooks": [
+          {"type": "command", "command": "bash ~/.claude/hooks/cost-alert.sh"}
+        ]
+      },
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {"type": "command", "command": "bash ~/.claude/hooks/secret-scanner.sh"}
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {"type": "command", "command": "bash ~/.claude/hooks/debug-reminder.sh"},
+          {"type": "command", "command": "bash ~/.claude/hooks/build-tracker.sh"},
+          {"type": "command", "command": "bash ~/.claude/hooks/notify-complete.sh"}
+        ]
+      }
+    ]
+  }
+}
+```
+</details>
+
+---
+
 ## Customization
 
 Several skills use environment variables for configuration:
@@ -314,7 +399,16 @@ Several skills use environment variables for configuration:
 NOX-AI-SKILLS/
 ├── README.md
 ├── LICENSE                    # MIT
-├── install.sh                 # Auto-installer (Claude + Gemini + Codex + Agents)
+├── install.sh                 # Auto-installer (Claude + Gemini + Codex + Agents + Hooks)
+├── hooks/                     # Claude Code hooks (opt-in with --with-hooks)
+│   ├── destructive-guard.sh   # Blocks dangerous commands
+│   ├── sync-guard.sh          # Multi-agent collision warning
+│   ├── secret-scanner.sh      # Leaked secret detection
+│   ├── debug-reminder.sh      # DEBUGGING.md auto-check
+│   ├── build-tracker.sh       # Build health tracking
+│   ├── cost-alert.sh          # Session cost threshold
+│   ├── notify-complete.sh     # Desktop notification (>60s commands)
+│   └── notify-timer-start.sh  # Timer for notify-complete
 ├── agents/                    # Subagents for parallel quality gates
 │   └── nox-*.md               # 8 agent definitions
 ├── claude/                    # Claude Code (/nox:<name>)

@@ -100,6 +100,22 @@ Plan → Architect → Clarify → Execute → ┌─ Review ──┐ → Commi
 | `nox-perf-profiler` | Performance | Critical regressions | Docs/config-only changes |
 | `nox-ux-tester` | Visual/UX | Broken layouts, missing content | Backend/API-only changes |
 
+## Two-Layer Defense (Hooks + Agents)
+
+This pipeline uses two complementary protection layers:
+
+**Layer 1 — Hooks (continuous, passive):** If Nox hooks are installed (`bash install.sh --with-hooks`), they run automatically on EVERY tool call throughout the entire pipeline:
+- `destructive-guard` — blocks `rm -rf`, `git reset --hard`, force push during autonomous execution
+- `sync-guard` — warns if another agent modified files between your reads and writes
+- `secret-scanner` — catches leaked API keys the moment they're written
+- `debug-reminder` — points to DEBUGGING.md when commands fail, saving rediagnosis cycles
+- `build-tracker` — alerts if build warnings/errors increase after your changes
+- `cost-alert` — warns if session cost exceeds threshold (critical when 6 agents run in parallel)
+
+**Layer 2 — Agents (checkpoint, active):** The 6 parallel agents in Step 5 perform deep analysis at the quality gate checkpoint.
+
+Hooks catch problems **as they happen** during Steps 1-4. Agents catch problems **in aggregate** at Step 5. Together, nothing slips through.
+
 ## Without GSD
 
 This skill works without GSD installed. Steps 1, 4, and 8 fall back to manual equivalents:
