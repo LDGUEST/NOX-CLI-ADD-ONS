@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="assets/logo.svg" alt="NOX — skill pack for AI agents" width="540">
+  <img src="assets/logo.png" alt="NOX — skill pack for AI agents" width="540">
 </div>
 
 # Nox
@@ -44,11 +44,11 @@ But when paired with [**GSD (Get Shit Done)**](https://github.com/get-shit-done-
 **`/nox:full-phase`** — Complete plan-to-ship pipeline
 > *"Build a Stripe subscription system with full quality gates"*
 
-Automates the entire development lifecycle in one command with 5 blocking quality gates:
+Automates the entire development lifecycle in one command with 6 blocking quality gates:
 
 ```
-Plan → Architect → Clarify → Execute → Review → Security → Pentest → Deps → Perf → Commit → Deploy → Verify → Handoff
- GSD      Nox        Nox     GSD+Nox     Nox       Nox        Nox      Nox    Nox     Nox      Nox      GSD       Nox
+Plan → Architect → Clarify → Execute → Review → Security → Pentest → Deps → Perf → UX → Commit → Deploy → Verify → Handoff
+ GSD      Nox        Nox     GSD+Nox     Nox       Nox        Nox      Nox    Nox   PW     Nox      Nox      GSD       Nox
 ```
 
 The pipeline pauses for your approval at key decision points:
@@ -57,25 +57,26 @@ The pipeline pauses for your approval at key decision points:
 - After security scan — Critical OWASP findings block the pipeline
 - After pentest — Any exploited vulnerability blocks the pipeline
 - After deps check — Critical CVEs block the pipeline
+- After UX gate — Broken layouts or missing content block the pipeline (Playwright screenshots at desktop + mobile)
 - After verification — Failures loop back to fix automatically
 
-Every task inside the pipeline gets TDD enforcement. Nothing ships without passing all 5 gates.
+Every task inside the pipeline gets TDD enforcement and Playwright visual checks on UI work. Nothing ships without passing all 6 gates.
 
 **`/nox:quick-phase`** — Lightweight plan-to-commit
 > *"Add an admin debug panel — skip the ceremony"*
 
-Same structure, minimal overhead. Advisory review (warns but doesn't block), simplify check, critical CVE scan. No TDD, no security scan, no pentest, no deploy protocol. For internal tools, prototypes, and experiments.
+Same structure, minimal overhead. Visual spot-check, advisory review (warns but doesn't block), simplify check, critical CVE scan. No TDD, no security scan, no pentest, no deploy protocol. For internal tools, prototypes, and experiments.
 
 ```
-Plan → Execute → Review (advisory) → Simplify → Deps (critical only) → Commit → Handoff
+Plan → Execute → Visual Check → Review (advisory) → Simplify → Deps (critical only) → Commit → Handoff
 ```
 
 | | `/nox:full-phase` | `/nox:quick-phase` |
 |---|---|---|
 | **Use for** | Production features | Prototypes, internal tools |
-| **Quality gates** | TDD, review, security, pentest, deps, perf, deploy | Advisory review, simplify, critical CVE check |
-| **Blocking** | 5 gates can block the pipeline | Nothing blocks — warnings only |
-| **Speed** | Thorough — 13 steps | Fast — 7 steps |
+| **Quality gates** | TDD, review, security, pentest, deps, perf, UX, deploy | Advisory review, visual spot-check, simplify, critical CVE check |
+| **Blocking** | 6 gates can block the pipeline | Nothing blocks — warnings only |
+| **Speed** | Thorough — 14 steps | Fast — 8 steps |
 | **Requires GSD** | Optional (falls back to manual) | Optional |
 
 ---

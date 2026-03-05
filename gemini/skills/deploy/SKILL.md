@@ -31,6 +31,7 @@ Deploy the current project with full safety checks. Follow this exact 5-step pro
   - HTTP 200 on `$DEPLOY_URL` or auto-detected production URL
   - Check for console errors or crash logs
   - Verify critical API endpoints respond
+- **Visual verification**: Use Playwright to screenshot the deployed homepage and any critical user-facing pages. Confirm the UI renders correctly post-deploy — no blank pages, no broken layouts, no missing assets.
 - If verification fails, prompt for rollback
 
 ## 5. Report

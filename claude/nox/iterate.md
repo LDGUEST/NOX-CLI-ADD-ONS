@@ -14,6 +14,7 @@ After each step, confirm:
 - No existing tests are broken
 - No regressions in related functionality
 - The change is consistent with the project's coding standards
+- **Visual verification (UI tasks)**: If the step touches any UI, use Playwright to screenshot the affected page/component. Compare against the expected outcome. If the layout is broken, overlapping, or missing content — this counts as a failed verification and triggers a self-correct cycle. Do not move to the next step with broken UI.
 
 ## Safety Guards
 
