@@ -3,12 +3,12 @@ List all available Nox skills. For each one, provide:
 - A one-line description of what it does
 - When to use it
 
-## Nox Skills Catalog (36 skills)
+## Nox Skills Catalog (36 skills + 8 agents)
 
 ### Pipelines
 | Skill | Description |
 |-------|-------------|
-| `/nox:full-phase` | Complete plan-to-ship pipeline with quality gates at every step |
+| `/nox:full-phase` | Plan-to-ship pipeline — 6 quality gate agents dispatch in parallel |
 | `/nox:quick-phase` | Lightweight plan-to-commit for prototypes and internal tools |
 
 ### Code Quality
@@ -72,6 +72,18 @@ List all available Nox skills. For each one, provide:
 | `/nox:update` | Check for updates and install latest skills from GitHub |
 | `/nox:context` | Review and validate all AI context files (CLAUDE.md, MEMORY.md, etc.) |
 | `/nox:skill-create` | Create a new Nox skill in the correct format across all 3 CLIs |
+
+### Agents (subagents dispatched by `/nox:full-phase`)
+| Agent | Role |
+|-------|------|
+| `nox-reviewer` | Cross-file code review — correctness, security, performance, design, tests |
+| `nox-security-scanner` | OWASP Top 10 static analysis with CWE references |
+| `nox-pentester` | Live exploitation — 5-phase white-box pentest with proof-of-concept |
+| `nox-dep-auditor` | CVE detection, outdated packages, license compliance, supply chain risk |
+| `nox-perf-profiler` | N+1 queries, bundle size, memory leaks, Core Web Vitals |
+| `nox-ux-tester` | Playwright screenshots at 4 breakpoints, interaction testing, accessibility |
+| `nox-prompt-auditor` | LLM prompt audit across 8 dimensions with cost estimates (standalone) |
+| `nox-monitor` | Background log monitoring with anomaly detection (standalone) |
 
 ---
 Nox

@@ -10,10 +10,12 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 CLAUDE_SRC="$SCRIPT_DIR/claude"
 GEMINI_SRC="$SCRIPT_DIR/gemini"
 CODEX_SRC="$SCRIPT_DIR/codex"
+AGENTS_SRC="$SCRIPT_DIR/agents"
 
 CLAUDE_DEST="$HOME/.claude/commands"
 GEMINI_DEST="$HOME/.gemini/extensions/nox"
 CODEX_DEST="$HOME/.agents/skills"
+AGENTS_DEST="$HOME/.claude/agents"
 
 INSTALL_CLAUDE=true
 INSTALL_GEMINI=true
@@ -112,6 +114,24 @@ if [ "$INSTALL_CODEX" = true ]; then
     echo "  -> $count skills installed to $CODEX_DEST"
   else
     echo "Codex CLI not found — skipping (install: https://developers.openai.com/codex/cli/)"
+  fi
+fi
+
+# ── Agents (Claude Code only) ────────────────────────────────
+if [ "$INSTALL_CLAUDE" = true ] && [ -d "$AGENTS_SRC" ]; then
+  if command -v claude &>/dev/null; then
+    echo "Installing Nox agents for Claude Code..."
+    mkdir -p "$AGENTS_DEST"
+
+    agent_count=0
+    for agent in "$AGENTS_SRC"/*.md; do
+      [ -f "$agent" ] || continue
+      name="$(basename "$agent")"
+      install_file "$agent" "$AGENTS_DEST/$name"
+      agent_count=$((agent_count + 1))
+    done
+
+    echo "  -> $agent_count agents installed to $AGENTS_DEST/"
   fi
 fi
 

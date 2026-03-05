@@ -1,10 +1,19 @@
 <div align="center">
-  <img src="assets/logo.png" alt="NOX — skill pack for AI agents" width="540">
+
+```
+ ███╗   ██╗  ██████╗  ██╗  ██╗
+ ████╗  ██║ ██╔═══██╗ ╚██╗██╔╝
+ ██╔██╗ ██║ ██║   ██║  ╚███╔╝
+ ██║╚██╗██║ ██║   ██║  ██╔██╗
+ ██║ ╚████║ ╚██████╔╝ ██╔╝ ██╗
+ ╚═╝  ╚═══╝  ╚═════╝  ╚═╝  ╚═╝
+```
+
 </div>
 
 # Nox
 
-36 battle-tested slash commands for **Claude Code**, **Gemini CLI**, and **Codex CLI**. One install, three CLIs, zero config.
+36 skills + 8 agents for **Claude Code**, **Gemini CLI**, and **Codex CLI**. One install, three CLIs, zero config.
 
 Built for developers running multiple AI agents across terminals, machines, and models — Nox gives every agent the same playbook for code quality, security, deployment, and coordination.
 
@@ -44,23 +53,20 @@ But when paired with [**GSD (Get Shit Done)**](https://github.com/get-shit-done-
 **`/nox:full-phase`** — Complete plan-to-ship pipeline
 > *"Build a Stripe subscription system with full quality gates"*
 
-Automates the entire development lifecycle in one command with 6 blocking quality gates:
+Automates the entire development lifecycle in one command. After execution completes, **6 quality gate agents dispatch in parallel** — reviewing code, scanning security, pentesting live, auditing deps, profiling performance, and screenshotting UX simultaneously:
 
 ```
-Plan → Architect → Clarify → Execute → Review → Security → Pentest → Deps → Perf → UX → Commit → Deploy → Verify → Handoff
- GSD      Nox        Nox     GSD+Nox     Nox       Nox        Nox      Nox    Nox   PW     Nox      Nox      GSD       Nox
+Plan → Architect → Clarify → Execute → ┌─ Review ──┐ → Commit → Deploy → Verify → Handoff
+ GSD      Nox        Nox     GSD+Nox    │  Security │     Nox      Nox      GSD       Nox
+                                        │  Pentest  │
+                                        │  Deps     │
+                                        │  Perf     │
+                                        └─ UX ──────┘
+                                         6 PARALLEL
+                                          AGENTS
 ```
 
-The pipeline pauses for your approval at key decision points:
-- After architecture design — "Approve this design?"
-- After code review — Critical findings block the pipeline
-- After security scan — Critical OWASP findings block the pipeline
-- After pentest — Any exploited vulnerability blocks the pipeline
-- After deps check — Critical CVEs block the pipeline
-- After UX gate — Broken layouts or missing content block the pipeline (Playwright screenshots at desktop + mobile)
-- After verification — Failures loop back to fix automatically
-
-Every task inside the pipeline gets TDD enforcement and Playwright visual checks on UI work. Nothing ships without passing all 6 gates.
+Any agent returning BLOCK stops the pipeline. Fix the issue, re-run only the failed agents. Every task inside execution gets TDD enforcement and Playwright visual checks on UI work. 9 steps, 6 gates, ~80% faster than sequential.
 
 **`/nox:quick-phase`** — Lightweight plan-to-commit
 > *"Add an admin debug panel — skip the ceremony"*
@@ -74,9 +80,9 @@ Plan → Execute → Visual Check → Review (advisory) → Simplify → Deps (c
 | | `/nox:full-phase` | `/nox:quick-phase` |
 |---|---|---|
 | **Use for** | Production features | Prototypes, internal tools |
-| **Quality gates** | TDD, review, security, pentest, deps, perf, UX, deploy | Advisory review, visual spot-check, simplify, critical CVE check |
-| **Blocking** | 6 gates can block the pipeline | Nothing blocks — warnings only |
-| **Speed** | Thorough — 14 steps | Fast — 8 steps |
+| **Quality gates** | 6 parallel agents (review, security, pentest, deps, perf, UX) | Advisory review, visual spot-check, simplify, critical CVE check |
+| **Blocking** | 6 agents can block the pipeline | Nothing blocks — warnings only |
+| **Speed** | 9 steps, gates run in parallel | Fast — 8 steps |
 | **Requires GSD** | Optional (falls back to manual) | Optional |
 
 ---
@@ -268,6 +274,27 @@ Nox was built for running multiple AI agents across different terminals, machine
 
 ---
 
+## Agents (8)
+
+Nox includes 8 specialized subagents that power the parallel quality gates in `/nox:full-phase`. Each agent is a standalone `.md` file installed to `~/.claude/agents/`.
+
+| Agent | Role | Verdict |
+|-------|------|---------|
+| `nox-reviewer` | Cross-file code review — correctness, security, performance, design, tests | APPROVE / REQUEST_CHANGES / COMMENT |
+| `nox-security-scanner` | OWASP Top 10 static analysis with CWE references and remediation | PASS / WARN / BLOCK |
+| `nox-pentester` | Live exploitation — 5-phase white-box pentest with proof-of-concept | PASS / WARN / BLOCK |
+| `nox-dep-auditor` | CVE detection, outdated packages, license compliance, supply chain risk | PASS / WARN / BLOCK |
+| `nox-perf-profiler` | N+1 queries, bundle size, memory leaks, Core Web Vitals, rendering | PASS / WARN / BLOCK |
+| `nox-ux-tester` | Playwright screenshots at 4 breakpoints, interaction testing, Axe accessibility | PASS / WARN / BLOCK |
+| `nox-prompt-auditor` | LLM prompt audit across 8 dimensions with cost calculation | PASS / WARN / BLOCK |
+| `nox-monitor` | Background log monitoring with deduplication, correlation, anomaly detection | Continuous |
+
+In `/nox:full-phase`, 6 of these agents (all except prompt-auditor and monitor) dispatch **simultaneously** after code execution completes. This parallel dispatch cuts gate time by ~80% compared to running them sequentially.
+
+`nox-prompt-auditor` and `nox-monitor` are standalone — use them independently when auditing AI prompts or monitoring live logs.
+
+---
+
 ## Customization
 
 Several skills use environment variables for configuration:
@@ -288,7 +315,9 @@ Several skills use environment variables for configuration:
 NOX-AI-SKILLS/
 ├── README.md
 ├── LICENSE                    # MIT
-├── install.sh                 # Auto-installer (Claude + Gemini + Codex)
+├── install.sh                 # Auto-installer (Claude + Gemini + Codex + Agents)
+├── agents/                    # Subagents for parallel quality gates
+│   └── nox-*.md               # 8 agent definitions
 ├── claude/                    # Claude Code (/nox:<name>)
 │   └── nox/
 │       └── *.md               # 36 skill files
