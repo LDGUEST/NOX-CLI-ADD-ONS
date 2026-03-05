@@ -3,7 +3,7 @@ List all available Nox skills. For each one, provide:
 - A one-line description of what it does
 - When to use it
 
-## Nox Skills Catalog (30 skills)
+## Nox Skills Catalog (31 skills)
 
 ### Pipelines
 | Skill | Description |
@@ -66,6 +66,7 @@ List all available Nox skills. For each one, provide:
 | Skill | Description |
 |-------|-------------|
 | `/nox:update` | Check for updates and install latest skills from GitHub |
+| `/nox:context` | Review and validate all AI context files (CLAUDE.md, MEMORY.md, etc.) |
 
 ---
 Nox
