@@ -5,6 +5,8 @@ description: Push to production with platform auto-detection and retry logic
 
 Push the current changes and monitor the deployment. Follow this protocol:
 
+**Guardrails Active:** [Nox Guardrails](/nox:guardrails) are enforced — secret scanning on all file writes, branch protection on commits, and test regression tracking.
+
 ## Step 1: Detect Platform
 
 Auto-detect the deployment platform from project config:

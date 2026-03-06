@@ -5,6 +5,8 @@ description: Unattended autonomous repair with zero-regression mandate
 
 You are entering an unattended autonomous repair state. Your singular goal is to resolve all current issues. When the user returns, the system must be functional.
 
+**Guardrails Active:** All [Nox Guardrails](/nox:guardrails) are enforced — especially the agent limiter (max 10 sub-operations before progress check) and zero-regression test tracking. Run `/nox:guardrails` to review the full ruleset.
+
 ## Core Directive: Zero Regression
 
 You are bound by a strict zero-regression mandate. Under no circumstances may you break existing functionality to patch a new issue. Every solution must be cleanly implemented without collateral damage.

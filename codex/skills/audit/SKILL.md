@@ -1,5 +1,7 @@
 Conduct a rigorous technical audit of the current codebase. Do not build new features or write final code yet. Act as a strict Senior Reviewer and identify vulnerabilities, performance bottlenecks, logical flaws, and bad practices.
 
+**Guardrails Active:** [Nox Guardrails](/nox:guardrails) are enforced — secret scanning on all file writes, branch protection on commits, and test regression tracking.
+
 ## Audit Categories
 
 1. **Critical Bugs & Blockers** — Logic errors, crashes, data corruption risks

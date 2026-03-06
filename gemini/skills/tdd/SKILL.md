@@ -5,6 +5,8 @@ description: Red-Green-Refactor enforcement with test generation for existing co
 
 Enforce the Red-Green-Refactor cycle. No skipping steps. This skill also handles standalone test generation when invoked on existing code without a feature spec.
 
+**Guardrails Active:** [Nox Guardrails](/nox:guardrails) are enforced — secret scanning on all file writes, branch protection on commits, and test regression tracking.
+
 ## Mode Selection
 
 - If the user has a **feature or bug to implement** → Run the full TDD cycle (Red-Green-Refactor)

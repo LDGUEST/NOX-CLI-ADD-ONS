@@ -1,5 +1,7 @@
 Deploy the current project with full safety checks. Follow this exact 5-step protocol:
 
+**Guardrails Active:** [Nox Guardrails](/nox:guardrails) are enforced — secret scanning on all file writes, branch protection on commits, and test regression tracking.
+
 ## 1. Pre-flight
 
 - Run `git status` and `git diff` to confirm what's being deployed

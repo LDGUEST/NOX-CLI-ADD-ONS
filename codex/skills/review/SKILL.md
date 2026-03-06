@@ -1,5 +1,7 @@
 Perform a PR-style code review on the current changes or specified files. Act as a senior reviewer focused on shipping quality code.
 
+**Guardrails Active:** [Nox Guardrails](/nox:guardrails) are enforced — secret scanning on all file writes, branch protection on commits, and test regression tracking.
+
 ## Review Scope
 
 If there are staged/unstaged git changes, review those. Otherwise, review the files or components specified by the user.

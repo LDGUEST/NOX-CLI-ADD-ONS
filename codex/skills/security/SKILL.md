@@ -1,5 +1,7 @@
 Perform a comprehensive security assessment of this codebase. This skill combines static analysis (OWASP Top 10 scan) with optional live penetration testing.
 
+**Guardrails Active:** [Nox Guardrails](/nox:guardrails) are enforced — secret scanning on all file writes, branch protection on commits, and test regression tracking.
+
 ## Mode Selection
 
 Ask the user which mode to run:

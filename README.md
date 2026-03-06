@@ -32,7 +32,7 @@
 
 # Nox
 
-31 skills + 8 agents for **Claude Code**, **Gemini CLI**, and **Codex CLI**. One install, three CLIs, zero config.
+32 skills + 8 agents for **Claude Code**, **Gemini CLI**, and **Codex CLI**. One install, three CLIs, zero config.
 
 Built for developers running multiple AI agents across terminals, machines, and models — Nox gives every agent the same playbook for code quality, security, deployment, and coordination.
 
@@ -121,7 +121,7 @@ bash install.sh --gemini-only
 bash install.sh --codex-only
 ```
 
-Type `/nox` in Claude Code and all 31 skills appear — same UX as `/gsd`.
+Type `/nox` in Claude Code and all 32 skills appear — same UX as `/gsd`.
 
 ## Manual Install
 
@@ -142,7 +142,7 @@ cp -r codex/skills/* ~/.agents/skills/
 
 ---
 
-## Skill Catalog (31 skills)
+## Skill Catalog (32 skills)
 
 ### Pipelines
 
@@ -252,10 +252,13 @@ cp -r codex/skills/* ~/.agents/skills/
 > *"Forget the old API spec — here's the new one"* — Purges stale assumptions and confirms exactly what it's discarding. Essential when switching between agents with conflicting context.
 
 **`/nox:help-forge`** — Skill catalog
-> *"What Nox commands are available?"* — Lists all 31 skills organized by category.
+> *"What Nox commands are available?"* — Lists all 32 skills organized by category.
 
 **`/nox:skill-create`** — Create new Nox skills
 > *"I want to add a new slash command to Nox"* — Meta-skill that scaffolds a new skill in the correct format across all 3 CLIs. Guides you through naming, content structure, registration in help-forge and README, validation checklist, and deployment to all machines. Prevents the most common mistakes (stale counts, missing formats, vague instructions).
+
+**`/nox:guardrails`** — Safety guardrails for all CLIs
+> Inline safety checks that mirror Claude Code's 19 hooks for Gemini and Codex users. Destructive command blocking, secret scanning, branch protection, commit linting, drift detection, test regression tracking, and more. Automatically referenced by pipeline and autonomous skills. Claude users get these via hooks; Gemini/Codex users get them via this skill.
 
 ---
 

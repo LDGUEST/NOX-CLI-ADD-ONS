@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.4.0] - 2026-03-06
+
+### Added
+- `/nox:guardrails` skill — inline safety checks that mirror all 19 Claude Code hooks for Gemini and Codex users
+- Guardrails wired into 11 skills across all 3 CLIs (full-phase, quick-phase, iterate, unloop, refactor, tdd, review, audit, security, deploy, push)
+- Skill count: 31 → 32
+
 ## [1.3.0] - 2026-03-06
 
 ### Added

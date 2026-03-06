@@ -7,6 +7,8 @@ Execute a lightweight plan-to-commit pipeline without full quality gates. For in
 
 **Requires:** [GSD](https://github.com/get-shit-done-ai/gsd) installed alongside Nox for full functionality. Works without GSD in manual mode.
 
+**Guardrails Active:** All [Nox Guardrails](/nox:guardrails) are enforced throughout this pipeline — destructive command blocking, secret scanning, branch protection, commit linting, drift detection, and test regression tracking. These replicate Claude Code's hook protections for Gemini and Codex users.
+
 ## Pipeline
 
 ### Step 1: Plan
