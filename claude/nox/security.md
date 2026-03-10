@@ -1,6 +1,9 @@
 ---
 name: security
 description: Comprehensive security assessment — OWASP Top 10 static analysis with optional live penetration testing.
+metadata:
+  author: nox
+  version: "1.6"
 ---
 
 Perform a comprehensive security assessment of this codebase. This skill combines static analysis (OWASP Top 10 scan) with optional live penetration testing.

@@ -1,6 +1,9 @@
 ---
 name: update
 description: Check for NOX AI Skills updates and install them from the CLI.
+metadata:
+  author: nox
+  version: "1.6"
 ---
 
 Check for NOX AI Skills updates and install them from the CLI.

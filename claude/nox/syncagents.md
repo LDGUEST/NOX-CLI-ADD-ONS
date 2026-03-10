@@ -1,6 +1,9 @@
 ---
 name: syncagents
 description: Re-read all relevant files after another agent has modified the repository to avoid stale context conflicts.
+metadata:
+  author: nox
+  version: "1.6"
 ---
 
 Another agent or process has likely modified this repository since our session started. Avoid worktree messes, detached heads, and overwriting another agent's work with stale context.

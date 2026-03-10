@@ -1,6 +1,9 @@
 ---
 name: commit
 description: Generate a conventional commit message from currently staged changes.
+metadata:
+  author: nox
+  version: "1.6"
 ---
 
 Generate a commit message from the current staged changes. Follow Conventional Commits format.

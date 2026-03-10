@@ -1,6 +1,9 @@
 ---
 name: full-phase
 description: Full plan-to-ship pipeline with quality gates — architecture, implementation, tests, security, deploy.
+metadata:
+  author: nox
+  version: "1.6"
 ---
 
 Execute a complete plan-to-ship pipeline with quality gates at every step. This skill orchestrates both GSD and Nox commands into a single automated workflow.

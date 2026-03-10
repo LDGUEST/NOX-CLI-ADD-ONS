@@ -4,6 +4,28 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.6.0] - 2026-03-09
+
+### Added
+- **YAML frontmatter** on all 34 Claude skills and 23 Codex skills — skills can now auto-invoke from natural language, not just explicit `/nox:name`
+- **`/nox:scan`** — new meta-skill that auto-detects project type and dispatches up to 4 parallel agents (reviewer, security, dep-auditor, context-engineer)
+- **`/nox:context-engineer` diagnostics** — Phase 2 now runs 11 structural + security checks: circular imports, missing references, large files, deep chains, duplicate imports, exposed secrets
+- **Progressive disclosure** — `context-engineer` split into `SKILL.md` + `references/DIAGNOSTICS.md` for Codex/Gemini; Claude version trimmed from 353 → 166 lines
+- **Global file protection** — `armor` and `context-engineer` now explicitly prohibit writes to `~/.claude/CLAUDE.md`, `~/.gemini/GEMINI.md`, and other system files
+- **`disable-model-invocation: true`** on dangerous skills: `deploy`, `push`, `unloop`, `overwrite` — prevents accidental auto-triggering
+- **`compatibility` field** on tools requiring specific deps: `uxtest` (Playwright), `scan` (Agent tool), `security`, `monitorlive`, `cicd`
+- **`metadata` field** (`author: nox`, `version: "1.6"`) on all 34 Claude skills
+- **GitHub issue templates** — bug report, feature request, skill idea
+- **Skill count corrected** — README updated from 33 → 34 skills
+- **`CLAUDE.local.md`** added to context-engineer registry (flagged as deprecated)
+- **`--codebase` flag** on context-engineer for codebase-level diagnostic checks
+
+### Changed
+- **Expanded skills** — architect, landing, questions each rewritten with full phase-based process (from ~20 lines to 100-150 lines each)
+- **`skill-create` updated** — now teaches spec-compliant format: frontmatter on all 3 CLIs, `references/` directories, `disable-model-invocation` for dangerous ops
+- **Rules sections rewritten** — replaced ALL-CAPS NEVER/ALWAYS mandates with reasoning-based rules per Anthropic skill-creator guidance
+- **`update` skill** — Windows path changed from hardcoded to `%USERPROFILE%` pattern
+
 ## [1.5.0] - 2026-03-06
 
 ### Added

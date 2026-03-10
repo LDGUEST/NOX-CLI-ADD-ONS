@@ -1,6 +1,10 @@
 ---
 name: overwrite
 description: Treat latest input as absolute state update — overwrite conflicting previous context for a specific component.
+disable-model-invocation: true
+metadata:
+  author: nox
+  version: "1.6"
 ---
 
 Treat my latest input as an absolute state update. Overwrite and purge any conflicting previous context, rules, or architectural decisions we've discussed regarding this specific component.

@@ -1,6 +1,9 @@
 ---
 name: review
 description: PR-style code review on current changes or specified files. Senior reviewer focused on shipping quality.
+metadata:
+  author: nox
+  version: "1.6"
 ---
 
 Perform a PR-style code review on the current changes or specified files. Act as a senior reviewer focused on shipping quality code.

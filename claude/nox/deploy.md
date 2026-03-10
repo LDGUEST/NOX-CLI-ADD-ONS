@@ -1,6 +1,10 @@
 ---
 name: deploy
 description: Deploy the project with full safety checks — pre-deploy validation, deploy, post-deploy monitoring.
+disable-model-invocation: true
+metadata:
+  author: nox
+  version: "1.6"
 ---
 
 Deploy the current project with full safety checks. Follow this exact 5-step protocol:

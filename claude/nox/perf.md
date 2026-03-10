@@ -1,6 +1,9 @@
 ---
 name: perf
 description: Profile codebase for performance issues and propose concrete optimizations with impact estimates.
+metadata:
+  author: nox
+  version: "1.6"
 ---
 
 Profile the codebase for performance issues and propose concrete optimizations.

@@ -1,6 +1,9 @@
 ---
 name: context-engineer
 description: Audit and govern all AI context files — health scoring, armor enforcement, bloat detection, cross-project drift. Never writes to global system files.
+metadata:
+  author: nox
+  version: "1.6"
 ---
 
 Discover, audit, and govern all AI context files across your projects. Enforces armor, scores health, detects cross-project drift, and asks the right questions to fill gaps. Built for solo developers juggling dozens of projects.

@@ -1,6 +1,9 @@
 ---
 name: prompt
 description: Audit and optimize LLM prompts in the codebase for reliability, cost efficiency, safety, and output quality.
+metadata:
+  author: nox
+  version: "1.6"
 ---
 
 Review, optimize, and harden LLM prompts found in the codebase. For any project that calls AI APIs (OpenAI, Anthropic, Google, local models), this skill audits every prompt for reliability, cost efficiency, safety, and output quality.

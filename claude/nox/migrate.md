@@ -1,6 +1,9 @@
 ---
 name: migrate
 description: Generate a database migration for a schema change. Auto-detects ORM and migration framework.
+metadata:
+  author: nox
+  version: "1.6"
 ---
 
 Generate a database migration for the requested schema change. Auto-detect the ORM and migration framework.

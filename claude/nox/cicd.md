@@ -1,6 +1,9 @@
 ---
 name: cicd
 description: Generate a production-ready CI/CD workflow for this codebase.
+metadata:
+  author: nox
+  version: "1.6"
 ---
 
 Generate a production-ready CI/CD workflow for this codebase.

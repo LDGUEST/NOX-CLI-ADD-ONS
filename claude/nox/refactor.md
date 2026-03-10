@@ -1,6 +1,9 @@
 ---
 name: refactor
 description: Targeted refactoring with a safety net — improves structure while guaranteeing identical behavior.
+metadata:
+  author: nox
+  version: "1.6"
 ---
 
 Perform a targeted refactoring with a safety net. The goal: improve code structure while guaranteeing identical behavior.

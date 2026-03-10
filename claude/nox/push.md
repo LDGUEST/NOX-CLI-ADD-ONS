@@ -1,6 +1,10 @@
 ---
 name: push
 description: Push changes and monitor the deployment pipeline for failures.
+disable-model-invocation: true
+metadata:
+  author: nox
+  version: "1.6"
 ---
 
 Push the current changes and monitor the deployment. Follow this protocol:

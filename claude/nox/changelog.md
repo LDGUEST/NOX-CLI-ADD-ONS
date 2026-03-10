@@ -1,6 +1,9 @@
 ---
 name: changelog
 description: Generate CHANGELOG.md from git history in Keep a Changelog format.
+metadata:
+  author: nox
+  version: "1.6"
 ---
 
 Generate a CHANGELOG.md from git history. Follow Keep a Changelog format.

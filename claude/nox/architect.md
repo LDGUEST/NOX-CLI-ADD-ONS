@@ -1,6 +1,9 @@
 ---
 name: architect
 description: Design-first gate — no code until architecture is reviewed and approved. Use before any feature touching 3+ files.
+metadata:
+  author: nox
+  version: "1.6"
 ---
 
 Design-first gate. No code, scaffolding, or implementation until the architecture is reviewed and approved. This skill prevents the most expensive rework: building a system whose structure doesn't fit the problem.

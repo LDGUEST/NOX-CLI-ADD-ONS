@@ -1,6 +1,9 @@
 ---
 name: handoff
 description: End-of-session knowledge capture — preserve decisions, blockers, next steps, and context before closing.
+metadata:
+  author: nox
+  version: "1.6"
 ---
 
 This session is ending. Before we close, execute the full knowledge capture protocol:

@@ -1,6 +1,9 @@
 ---
 name: guardrails
 description: Enforce NOX guardrails and safety protocols. Use to install cross-CLI hooks and protection rules.
+metadata:
+  author: nox
+  version: "1.6"
 ---
 
 

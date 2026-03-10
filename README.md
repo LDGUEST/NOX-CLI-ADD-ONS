@@ -32,7 +32,7 @@
 
 # Nox
 
-33 skills + 8 agents + 19 hooks for **Claude Code**, **Gemini CLI**, and **Codex CLI**. One install, three CLIs, zero config.
+34 skills + 8 agents + 19 hooks for **Claude Code**, **Gemini CLI**, and **Codex CLI**. One install, three CLIs, zero config.
 
 Built for developers running multiple AI agents across terminals, machines, and models — Nox gives every agent the same playbook for code quality, security, deployment, and coordination.
 
@@ -127,7 +127,7 @@ bash install.sh --gemini-only
 bash install.sh --codex-only
 ```
 
-Type `/nox` in Claude Code and all 33 skills appear — same UX as `/gsd`.
+Type `/nox` in Claude Code and all 34 skills appear — same UX as `/gsd`.
 
 ## Manual Install
 
@@ -148,7 +148,7 @@ cp -r codex/skills/* ~/.agents/skills/
 
 ---
 
-## Skill Catalog (33 skills)
+## Skill Catalog (34 skills)
 
 ### Pipelines
 
@@ -258,7 +258,7 @@ cp -r codex/skills/* ~/.agents/skills/
 > *"Forget the old API spec — here's the new one"* — Purges stale assumptions and confirms exactly what it's discarding. Essential when switching between agents with conflicting context.
 
 **`/nox:help-forge`** — Skill catalog
-> *"What Nox commands are available?"* — Lists all 33 skills organized by category.
+> *"What Nox commands are available?"* — Lists all 34 skills organized by category.
 
 **`/nox:skill-create`** — Create new Nox skills
 > *"I want to add a new slash command to Nox"* — Meta-skill that scaffolds a new skill in the correct format across all 3 CLIs. Guides you through naming, content structure, registration in help-forge and README, validation checklist, and deployment to all machines. Prevents the most common mistakes (stale counts, missing formats, vague instructions).
@@ -560,11 +560,11 @@ NOX/
 │   └── nox-*.md               # 8 agent definitions
 ├── claude/                    # Claude Code (/nox:<name>)
 │   └── nox/
-│       └── *.md               # 33 skill files
+│       └── *.md               # 34 skill files
 ├── gemini/                    # Gemini CLI
 │   ├── gemini-extension.json
 │   └── skills/
-│       └── <name>/SKILL.md    # 33 skill directories
+│       └── <name>/SKILL.md    # 34 skill directories
 └── codex/                     # Codex CLI
     └── skills/
         └── <name>/SKILL.md    # 31 skill directories

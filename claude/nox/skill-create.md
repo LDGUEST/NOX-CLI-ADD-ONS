@@ -79,23 +79,32 @@ Nox
 
 ### Step 3: Create Files in All Three Formats
 
+All three formats use YAML frontmatter. Required fields: `name` + `description`. Optional: `compatibility`, `metadata`, `allowed-tools`, `disable-model-invocation`.
+
 **Claude Code** — `claude/nox/<name>.md`
-- Plain markdown, no frontmatter
-- This is the canonical version — write it first
+```yaml
+---
+name: <name>
+description: <trigger-optimized description, max 150 chars>
+# Add these only when relevant:
+# disable-model-invocation: true   ← for dangerous ops (deploy, push, unloop, overwrite)
+# compatibility: Requires git, docker, etc.
+# metadata:
+#   author: nox
+#   version: "1.0"
+---
+```
+This is the canonical version — write it first.
 
 **Gemini CLI** — `gemini/skills/<name>/SKILL.md`
-- Add YAML frontmatter:
-  ```yaml
-  ---
-  name: <name>
-  description: <one-line description>
-  ---
-  ```
-- Content identical to Claude version below the frontmatter
+- Same frontmatter as Claude version
+- Content identical below the frontmatter
+- Can add `references/` subdirectory for heavy reference material (bash examples, output templates)
 
 **Codex CLI** — `codex/skills/<name>/SKILL.md`
-- Create the directory: `codex/skills/<name>/`
-- Content identical to Claude version (no frontmatter)
+- Same frontmatter as Claude version
+- Content identical below the frontmatter
+- Can add `references/` subdirectory for heavy reference material
 
 ### Step 4: Register the Skill
 
@@ -115,16 +124,19 @@ Update these files to include the new skill:
 
 Before committing, verify:
 
-- [ ] File exists at `claude/nox/<name>.md`
-- [ ] File exists at `gemini/skills/<name>/SKILL.md` with correct YAML frontmatter
-- [ ] File exists at `codex/skills/<name>/SKILL.md`
-- [ ] Directory exists at `codex/skills/<name>/`
+- [ ] File exists at `claude/nox/<name>.md` with YAML frontmatter
+- [ ] File exists at `gemini/skills/<name>/SKILL.md` with YAML frontmatter
+- [ ] File exists at `codex/skills/<name>/SKILL.md` with YAML frontmatter
+- [ ] All three files have matching `name` and `description` fields
+- [ ] `disable-model-invocation: true` added if skill is dangerous (deploy, push, destructive ops)
+- [ ] `compatibility` field added if skill needs specific tools (Playwright, Docker, etc.)
 - [ ] `help-forge.md` updated in all 3 formats with matching skill count
 - [ ] `README.md` updated with new skill entry and correct counts
-- [ ] Content is identical across all 3 formats (except Gemini frontmatter)
+- [ ] Content is identical across all 3 formats (below the frontmatter)
 - [ ] Skill ends with `---\nNox` footer
 - [ ] No references to specific users, machines, IPs, or private infrastructure
 - [ ] Skill works standalone — doesn't require other Nox skills to function (may recommend them, but doesn't depend on them)
+- [ ] If SKILL.md body exceeds 200 lines, move bash examples/templates to `references/` subdirectory
 
 ### Step 6: Deploy
 
@@ -153,7 +165,8 @@ After committing and pushing to GitHub:
 - **No output format** — The agent doesn't know what "done" looks like → always include a sample output
 - **No skip conditions** — Not every skill applies to every project → say when to skip
 - **No rules section** — Without guardrails, agents will over-engineer, hallucinate, or go in circles
-- **Forgetting a format** — Created for Claude but forgot Gemini and Codex → always create all 3
+- **Forgetting a format** — Created for Claude but forgot Gemini and Codex → always create all 3 with matching frontmatter
+- **Missing `disable-model-invocation`** — Dangerous skills (deploy, push, unloop, overwrite) must have this set to prevent accidental auto-triggering from natural language
 - **Stale counts** — Updated help-forge but forgot to update README skill count → check all locations
 
 ---

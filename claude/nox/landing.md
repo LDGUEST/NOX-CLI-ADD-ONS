@@ -1,6 +1,9 @@
 ---
 name: landing
 description: Draft a conversion-focused landing page — stack detection, content strategy, components, responsive layout, SEO.
+metadata:
+  author: nox
+  version: "1.6"
 ---
 
 Draft a conversion-focused landing page from scratch. This skill handles the full process: structure, copy, components, and responsive layout. Adapts to whatever stack the project uses.

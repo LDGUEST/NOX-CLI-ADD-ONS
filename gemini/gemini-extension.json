@@ -1,5 +1,5 @@
 {
   "name": "nox",
-  "version": "1.5.0",
-  "description": "Nox — 32 skills + 8 agents + 19 hooks for Claude Code, Gemini CLI, and Codex CLI"
+  "version": "1.6.0",
+  "description": "Nox — 34 skills + 8 agents + 19 hooks for Claude Code, Gemini CLI, and Codex CLI"
 }

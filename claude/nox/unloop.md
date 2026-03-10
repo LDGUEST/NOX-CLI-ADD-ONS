@@ -1,6 +1,10 @@
 ---
 name: unloop
 description: Autonomous repair state — resolve all current issues without stopping until the system is functional.
+disable-model-invocation: true
+metadata:
+  author: nox
+  version: "1.6"
 ---
 
 You are entering an unattended autonomous repair state. Your singular goal is to resolve all current issues. When the user returns, the system must be functional.
