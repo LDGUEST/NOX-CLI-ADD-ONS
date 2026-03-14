@@ -177,6 +177,12 @@ if [ "$INSTALL_HOOKS" = true ] && [ -d "$HOOKS_SRC" ]; then
       hook_count=$((hook_count + 1))
     done
 
+    # Install metrics query script
+    if [ -f "$HOOKS_SRC/nox-metrics.sh" ]; then
+      install_file "$HOOKS_SRC/nox-metrics.sh" "$HOOKS_DEST/nox-metrics.sh"
+      chmod +x "$HOOKS_DEST/nox-metrics.sh"
+    fi
+
     # Install JS hooks (statusline, context monitor)
     for hook in "$HOOKS_SRC"/*.js; do
       [ -f "$hook" ] || continue

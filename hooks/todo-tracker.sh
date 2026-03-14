@@ -8,11 +8,16 @@
 [ "${NOX_SKIP_TODO_TRACKER:-0}" = "1" ] && exit 0
 
 INPUT=$(cat)
-TOOL=$(echo "$INPUT" | python3 -c "import sys,json; print(json.load(sys.stdin).get('tool_name',''))" 2>/dev/null || echo "")
+
+# Fast field extraction without python3
+HOOK_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$HOOK_DIR/nox-parse.sh" 2>/dev/null || exit 0
+
+TOOL=$(nox_field "tool_name" "$INPUT")
 [ -z "$TOOL" ] && exit 0
 [ "$TOOL" != "Write" ] && [ "$TOOL" != "Edit" ] && exit 0
 
-FILE_PATH=$(echo "$INPUT" | python3 -c "import sys,json; print(json.load(sys.stdin).get('tool_input',{}).get('file_path',''))" 2>/dev/null || echo "")
+FILE_PATH=$(nox_field "file_path" "$INPUT")
 [ -z "$FILE_PATH" ] && exit 0
 [ ! -f "$FILE_PATH" ] && exit 0
 

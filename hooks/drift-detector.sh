@@ -9,8 +9,14 @@
 [ "${NOX_SKIP_DRIFT_DETECTOR:-0}" = "1" ] && exit 0
 
 INPUT=$(cat)
-SESSION_ID=$(echo "$INPUT" | python3 -c "import sys,json; print(json.load(sys.stdin).get('session_id','unknown'))" 2>/dev/null || echo "unknown")
-TOOL=$(echo "$INPUT" | python3 -c "import sys,json; print(json.load(sys.stdin).get('tool_name',''))" 2>/dev/null || echo "")
+
+# Fast field extraction without python3
+HOOK_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$HOOK_DIR/nox-parse.sh" 2>/dev/null || exit 0
+
+SESSION_ID=$(nox_field "session_id" "$INPUT")
+[ -z "$SESSION_ID" ] && SESSION_ID="unknown"
+TOOL=$(nox_field "tool_name" "$INPUT")
 [ "$TOOL" != "Write" ] && [ "$TOOL" != "Edit" ] && exit 0
 
 WARN="${NOX_DRIFT_WARN:-100}"

@@ -6,7 +6,7 @@
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue?style=flat-square)](LICENSE)
 [![Skills](https://img.shields.io/badge/skills-35-blueviolet?style=flat-square)](#skill-catalog-35-skills)
 [![Agents](https://img.shields.io/badge/agents-8-orange?style=flat-square)](#agents-8)
-[![Hooks](https://img.shields.io/badge/hooks-22-green?style=flat-square)](#hooks-22)
+[![Hooks](https://img.shields.io/badge/hooks-23-green?style=flat-square)](#hooks-23)
 [![CLIs](https://img.shields.io/badge/CLIs-Claude%20%7C%20Gemini%20%7C%20Codex-lightgrey?style=flat-square)](#quick-install)
 [![Zero Config](https://img.shields.io/badge/config-zero-brightgreen?style=flat-square)](#quick-install)
 
@@ -40,7 +40,7 @@
 
 # Nox
 
-35 skills + 8 agents + 22 hooks for **Claude Code**, **Gemini CLI**, and **Codex CLI**. One install, three CLIs, zero config.
+35 skills + 8 agents + 23 hooks for **Claude Code**, **Gemini CLI**, and **Codex CLI**. One install, three CLIs, zero config.
 
 Built for developers running multiple AI agents across terminals, machines, and models — Nox gives every agent the same playbook for code quality, security, deployment, and coordination.
 
@@ -327,11 +327,11 @@ In `/nox:full-phase`, 6 of these agents (all except prompt-auditor and monitor) 
 
 ---
 
-## Hooks (22)
+## Hooks (23)
 
 Opt-in Claude Code hooks that provide continuous passive protection across ALL Nox and GSD workflows. Install with `bash install.sh --with-hooks`.
 
-22 hooks across **8 hook events** — the most comprehensive hook suite available for Claude Code.
+23 hooks across **8 hook events** — the most comprehensive hook suite available for Claude Code.
 
 ### Safety & Protection
 
@@ -372,6 +372,7 @@ Opt-in Claude Code hooks that provide continuous passive protection across ALL N
 | `notify-complete` | PostToolUse (Bash) | Desktop notification when commands take >60s (macOS/Linux) |
 | `agent-tracker` | SubagentStart | Tracks subagent spawns, alerts on runaway loops (>10 agents) |
 | `session-logger` | Stop | Logs session summaries — project, branch, files changed — for work history |
+| `session-cost-tracker` | Stop | Records per-session token/cost metrics to SQLite for A/B comparison (hooks ON vs OFF) |
 
 ### Context Awareness & Recovery
 
@@ -451,6 +452,8 @@ The "Dead Ends" section is what makes this work. Without it, a post-compact agen
 | `NOX_SKIP_*` | — | Set any `NOX_SKIP_<HOOK_NAME>=1` to disable individually |
 | `NOX_SKIP_COMPACT_SAVER` | `0` | Set to `1` to disable pre-compact checkpoint saves |
 | `NOX_COMPACT_DIR` | `.claude/checkpoints/` | Override checkpoint directory path |
+| `NOX_COST_DB` | `~/.claude/.nox_metrics.db` | Override metrics SQLite database path |
+| `NOX_SKIP_ALL` | `0` | Set to `1` to disable all hooks (for A/B cost comparison) |
 
 <details>
 <summary>Settings.json configuration (click to expand)</summary>
@@ -626,6 +629,9 @@ NOX/
 │   ├── agent-tracker.sh       # SubagentStart: runaway loop detection
 │   ├── compact-saver.sh       # PreCompact: save context checkpoint
 │   ├── session-logger.sh      # Stop: log session summary
+│   ├── session-cost-tracker.sh # Stop: per-session token/cost metrics to SQLite
+│   ├── nox-metrics.sh          # CLI: query cost tracker (summary|compare|recent|...)
+│   ├── nox-parse.sh            # Shared: fast JSON field extraction (no python3)
 │   └── memory-auto-save.sh    # Stop: remind to update DEBUGGING.md
 ├── mcp-server/                # MCP server (any MCP-compatible client)
 │   ├── package.json

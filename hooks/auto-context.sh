@@ -9,7 +9,14 @@ set -eu
 [ "${NOX_SKIP_AUTO_CONTEXT:-0}" = "1" ] && exit 0
 
 INPUT=$(cat)
-CWD=$(echo "$INPUT" | python3 -c "import sys,json; print(json.load(sys.stdin).get('cwd',''))" 2>/dev/null || echo "")
+
+# Fast field extraction without python3
+HOOK_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$HOOK_DIR/nox-parse.sh" 2>/dev/null || {
+    # Fallback if nox-parse.sh missing
+    CWD=$(echo "$INPUT" | python3 -c "import sys,json; print(json.load(sys.stdin).get('cwd',''))" 2>/dev/null || echo "")
+}
+CWD="${CWD:-$(nox_field "cwd" "$INPUT")}"
 [ -z "$CWD" ] && exit 0
 cd "$CWD" 2>/dev/null || exit 0
 
@@ -17,46 +24,35 @@ cd "$CWD" 2>/dev/null || exit 0
 git rev-parse --git-dir >/dev/null 2>&1 || exit 0
 
 echo "--- Nox Auto-Context ---"
+echo "Branch: $(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo 'unknown')"
 
-# Current branch
-BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "unknown")
-echo "Branch: $BRANCH"
-
-# Recent commits (last 5)
+# Recent commits (compact: 5 lines)
 echo ""
 echo "Recent commits:"
 git log --oneline -5 2>/dev/null || true
 
-# Uncommitted changes summary
-CHANGED=$(git diff --stat --cached 2>/dev/null; git diff --stat 2>/dev/null)
-if [ -n "$CHANGED" ]; then
+# Uncommitted changes (only if dirty — skip the echo if clean)
+if ! git diff --quiet 2>/dev/null || ! git diff --cached --quiet 2>/dev/null; then
     echo ""
     echo "Uncommitted changes:"
-    echo "$CHANGED" | head -10
+    { git diff --stat --cached 2>/dev/null; git diff --stat 2>/dev/null; } | head -10
 fi
 
-# TODO/FIXME count
-TODO_COUNT=$(grep -rn "TODO\|FIXME\|HACK\|XXX" --include="*.ts" --include="*.tsx" --include="*.js" --include="*.jsx" --include="*.py" --include="*.go" --include="*.rs" --include="*.rb" . 2>/dev/null | grep -v node_modules | grep -v .git | wc -l | tr -d ' ')
-if [ "$TODO_COUNT" -gt 0 ] 2>/dev/null; then
-    echo ""
-    echo "Open TODOs/FIXMEs: $TODO_COUNT"
-fi
+# TODO count — use git grep (faster than recursive grep, respects .gitignore)
+TODO_COUNT=$(git grep -c -E "TODO|FIXME|HACK|XXX" -- '*.ts' '*.tsx' '*.js' '*.jsx' '*.py' '*.go' '*.rs' '*.rb' 2>/dev/null | awk -F: '{s+=$NF}END{print s+0}')
+[ "$TODO_COUNT" -gt 0 ] 2>/dev/null && echo "TODOs: $TODO_COUNT"
 
-# DEBUGGING.md highlights
+# DEBUGGING.md (compact: one line)
 if [ -f "DEBUGGING.md" ]; then
     ENTRY_COUNT=$(grep -c "^### " DEBUGGING.md 2>/dev/null || echo "0")
-    LATEST=$(grep "^### " DEBUGGING.md 2>/dev/null | tail -1 || true)
-    echo ""
     echo "DEBUGGING.md: $ENTRY_COUNT entries"
-    [ -n "$LATEST" ] && echo "Latest: $LATEST"
 fi
 
-# Recovery playbook from previous session (written by context-monitor at 83% usage)
+# Recovery playbook (critical — this one stays verbose)
 PLAYBOOK=".claude/checkpoints/continuation.md"
 if [ -f "$PLAYBOOK" ]; then
     echo ""
     echo "--- RECOVERY PLAYBOOK (from pre-compact handoff) ---"
-    echo "A previous session wrote a recovery playbook before auto-compact."
     echo "Read .claude/checkpoints/continuation.md NOW, act on it, then delete it."
     echo "---"
 fi

@@ -8,29 +8,24 @@
 # Config:  Set NOX_SKIP_DEBUG_REMINDER=1 to disable
 #          Works with any project that has a DEBUGGING.md in its root
 
-[[ "$NOX_SKIP_DEBUG_REMINDER" == "1" ]] && exit 0
+[[ "${NOX_SKIP_DEBUG_REMINDER:-}" == "1" ]] && exit 0
 
 INPUT=$(cat)
-TOOL=$(echo "$INPUT" | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('tool_name',''))" 2>/dev/null)
+
+# Fast field extraction without python3
+HOOK_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$HOOK_DIR/nox-parse.sh" 2>/dev/null || exit 0
+
+TOOL=$(nox_field "tool_name" "$INPUT")
 [[ "$TOOL" != "Bash" ]] && exit 0
 
-# Get exit code — try multiple field names for compatibility
-EXIT_CODE=$(echo "$INPUT" | python3 -c "
-import sys, json
-d = json.load(sys.stdin)
-r = d.get('tool_result', {})
-for key in ['exit_code', 'exitCode', 'code']:
-    v = r.get(key)
-    if v is not None:
-        print(v)
-        sys.exit(0)
-# Check if stdout contains error indicators
-print(0)
-" 2>/dev/null)
+# Get exit code — fast path with sed, fallback to python3 for nested
+EXIT_CODE=$(echo "$INPUT" | sed -n 's/.*"exit_code"[[:space:]]*:[[:space:]]*\([0-9]*\).*/\1/p' | head -1)
+[[ -z "$EXIT_CODE" ]] && EXIT_CODE=$(echo "$INPUT" | sed -n 's/.*"exitCode"[[:space:]]*:[[:space:]]*\([0-9]*\).*/\1/p' | head -1)
 
 [[ "$EXIT_CODE" == "0" || -z "$EXIT_CODE" ]] && exit 0
 
-CMD=$(echo "$INPUT" | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('tool_input',{}).get('command',''))" 2>/dev/null)
+CMD=$(nox_field "command" "$INPUT")
 
 # Detect test commands specifically
 IS_TEST=false

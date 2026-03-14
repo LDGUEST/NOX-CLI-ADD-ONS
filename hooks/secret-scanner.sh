@@ -8,14 +8,18 @@
 # Config:  Set NOX_SKIP_SECRET_SCAN=1 to disable
 #          Set NOX_SECRET_PATTERNS to a file with custom patterns (one per line)
 
-[[ "$NOX_SKIP_SECRET_SCAN" == "1" ]] && exit 0
+[[ "${NOX_SKIP_SECRET_SCAN:-}" == "1" ]] && exit 0
 
 INPUT=$(cat)
-TOOL=$(echo "$INPUT" | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('tool_name',''))" 2>/dev/null)
 
+# Fast field extraction without python3 (~0.5ms vs ~80ms)
+HOOK_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$HOOK_DIR/nox-parse.sh" 2>/dev/null || { echo "nox-parse.sh not found" >&2; exit 0; }
+
+TOOL=$(nox_field "tool_name" "$INPUT")
 [[ "$TOOL" != "Write" && "$TOOL" != "Edit" ]] && exit 0
 
-FILE=$(echo "$INPUT" | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('tool_input',{}).get('file_path',''))" 2>/dev/null)
+FILE=$(nox_field "file_path" "$INPUT")
 [[ -z "$FILE" || ! -f "$FILE" ]] && exit 0
 
 # Skip binary/asset files

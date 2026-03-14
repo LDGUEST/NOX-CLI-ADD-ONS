@@ -9,7 +9,12 @@ set -eu
 [ "${NOX_SKIP_PROMPT_GUARD:-0}" = "1" ] && exit 0
 
 INPUT=$(cat)
-PROMPT=$(echo "$INPUT" | python3 -c "import sys,json; print(json.load(sys.stdin).get('prompt',''))" 2>/dev/null || echo "")
+
+# Fast field extraction without python3
+HOOK_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$HOOK_DIR/nox-parse.sh" 2>/dev/null || exit 0
+
+PROMPT=$(nox_field "prompt" "$INPUT")
 [ -z "$PROMPT" ] && exit 0
 
 # Normalize to lowercase for matching
