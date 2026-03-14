@@ -102,22 +102,19 @@ process.stdin.on('end', () => {
     if (pct >= 85) warning = '\x1b[31mLow\x1b[0m';
     else if (pct >= 70) warning = '\x1b[33mOk\x1b[0m';
 
-    // ── Git branch + dirty indicator ──
-    // Normalize path for Windows (backslashes break git -C in Git Bash)
-    const gitDir = dir.replace(/\\/g, '/');
+    // ── Git branch + dirty indicator (always shown) ──
     let gitBranch = '';
-    let gitDirty = '';
+    let gitDirty = ' +0';
+    const _nul = os.platform() === 'win32' ? '2>nul' : '2>/dev/null';
     try {
-      gitBranch = execSync(`git -C "${gitDir}" rev-parse --abbrev-ref HEAD`, {
-        timeout: 2000, encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe']
+      gitBranch = execSync(`git -C ${JSON.stringify(dir)} rev-parse --abbrev-ref HEAD ${_nul}`, {
+        timeout: 2000, encoding: 'utf8'
       }).trim();
-      const statusOut = execSync(`git -C "${gitDir}" status --porcelain`, {
-        timeout: 2000, encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe']
+      const statusOut = execSync(`git -C ${JSON.stringify(dir)} status --porcelain ${_nul}`, {
+        timeout: 2000, encoding: 'utf8'
       }).trim();
-      if (statusOut) {
-        const changeCount = statusOut.split('\n').length;
-        gitDirty = ` +${changeCount}`;
-      }
+      const changeCount = statusOut ? statusOut.split('\n').length : 0;
+      gitDirty = ` +${changeCount}`;
     } catch (e) {}
 
     // ── Write bridge file for context monitor ──

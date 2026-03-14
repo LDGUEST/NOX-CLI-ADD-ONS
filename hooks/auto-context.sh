@@ -51,5 +51,15 @@ if [ -f "DEBUGGING.md" ]; then
     [ -n "$LATEST" ] && echo "Latest: $LATEST"
 fi
 
+# Recovery playbook from previous session (written by context-monitor at 83% usage)
+PLAYBOOK=".claude/checkpoints/continuation.md"
+if [ -f "$PLAYBOOK" ]; then
+    echo ""
+    echo "--- RECOVERY PLAYBOOK (from pre-compact handoff) ---"
+    echo "A previous session wrote a recovery playbook before auto-compact."
+    echo "Read .claude/checkpoints/continuation.md NOW, act on it, then delete it."
+    echo "---"
+fi
+
 echo "--- End Auto-Context ---"
 exit 0

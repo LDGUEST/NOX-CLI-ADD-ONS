@@ -59,8 +59,8 @@ CHECKPOINT_FILE="${CHECKPOINT_DIR}/pre-compact_${TIMESTAMP}.md"
     echo '```'
 } > "$CHECKPOINT_FILE" 2>/dev/null
 
-# Keep only last 5 checkpoints
-ls -t "${CHECKPOINT_DIR}"/pre-compact_*.md 2>/dev/null | tail -n +6 | xargs rm -f 2>/dev/null || true
+# Keep only last 3 checkpoints (continuation.md is separate and self-cleaning)
+ls -t "${CHECKPOINT_DIR}"/pre-compact_*.md 2>/dev/null | tail -n +4 | xargs rm -f 2>/dev/null || true
 
 echo "💾 Context checkpoint saved: $CHECKPOINT_FILE" >&2
 exit 0
