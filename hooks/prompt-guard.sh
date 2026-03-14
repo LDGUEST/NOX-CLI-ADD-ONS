@@ -9,12 +9,8 @@ set -eu
 [ "${NOX_SKIP_PROMPT_GUARD:-0}" = "1" ] && exit 0
 
 INPUT=$(cat)
-
-# Fast field extraction without python3
-HOOK_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-source "$HOOK_DIR/nox-parse.sh" 2>/dev/null || exit 0
-
-PROMPT=$(nox_field "prompt" "$INPUT")
+source "$(dirname "$0")/lib-json.sh"
+PROMPT=$(json_str "$INPUT" prompt)
 [ -z "$PROMPT" ] && exit 0
 
 # Normalize to lowercase for matching

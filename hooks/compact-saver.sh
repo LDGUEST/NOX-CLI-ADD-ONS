@@ -10,8 +10,10 @@ set -eu
 [ "${NOX_SKIP_COMPACT_SAVER:-0}" = "1" ] && exit 0
 
 INPUT=$(cat)
-SESSION_ID=$(echo "$INPUT" | python3 -c "import sys,json; print(json.load(sys.stdin).get('session_id','unknown'))" 2>/dev/null || echo "unknown")
-CWD=$(echo "$INPUT" | python3 -c "import sys,json; print(json.load(sys.stdin).get('cwd',''))" 2>/dev/null || echo "")
+source "$(dirname "$0")/lib-json.sh"
+SESSION_ID=$(json_str "$INPUT" session_id)
+[ -z "$SESSION_ID" ] && SESSION_ID="unknown"
+CWD=$(json_str "$INPUT" cwd)
 [ -z "$CWD" ] && exit 0
 cd "$CWD" 2>/dev/null || exit 0
 

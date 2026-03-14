@@ -10,22 +10,15 @@ set -eu
 [ "${NOX_SKIP_FILE_SIZE_GUARD:-0}" = "1" ] && exit 0
 
 INPUT=$(cat)
-TOOL=$(echo "$INPUT" | python3 -c "import sys,json; print(json.load(sys.stdin).get('tool_name',''))" 2>/dev/null || echo "")
-
-# Only trigger on Write tool
-[ "$TOOL" != "Write" ] && exit 0
+source "$(dirname "$0")/lib-json.sh"
 
 LIMIT="${NOX_FILE_SIZE_LIMIT:-512000}"
 
-# Get content size in bytes
-SIZE=$(echo "$INPUT" | python3 -c "
-import sys,json
-d=json.load(sys.stdin)
-content=d.get('tool_input',{}).get('content','') or d.get('tool_input',{}).get('file_text','') or ''
-print(len(content.encode('utf-8')))
-" 2>/dev/null || echo "0")
-
-FILE_PATH=$(echo "$INPUT" | python3 -c "import sys,json; print(json.load(sys.stdin).get('tool_input',{}).get('file_path','unknown'))" 2>/dev/null || echo "unknown")
+# Estimate content size from stdin length (avoid python3 for simple size check)
+# wc -c on the full JSON is an upper bound; content is the largest field
+SIZE=${#INPUT}
+FILE_PATH=$(json_str "$INPUT" file_path)
+[ -z "$FILE_PATH" ] && FILE_PATH="unknown"
 
 if [ "$SIZE" -gt "$LIMIT" ] 2>/dev/null; then
     SIZE_KB=$((SIZE / 1024))

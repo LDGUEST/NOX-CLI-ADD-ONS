@@ -7,25 +7,22 @@
 # Config:  Set NOX_SKIP_BUILD_TRACKER=1 to disable
 #          Stats stored in ~/.claude/.build_stats (auto-created)
 
-[[ "$NOX_SKIP_BUILD_TRACKER" == "1" ]] && exit 0
+[ "${NOX_SKIP_BUILD_TRACKER:-0}" = "1" ] && exit 0
 
 INPUT=$(cat)
-TOOL=$(echo "$INPUT" | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('tool_name',''))" 2>/dev/null)
-[[ "$TOOL" != "Bash" ]] && exit 0
+source "$(dirname "$0")/lib-json.sh"
 
-CMD=$(echo "$INPUT" | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('tool_input',{}).get('command',''))" 2>/dev/null)
+CMD=$(json_str "$INPUT" command)
 
-# Only trigger on build commands
-if ! echo "$CMD" | grep -qE '(npm\s+run\s+build|next\s+build|npx\s+next\s+build|tsc\b|vite\s+build|cargo\s+build|go\s+build)'; then
-    exit 0
-fi
+# Only trigger on build commands — fast exit before any heavy processing
+echo "$CMD" | grep -qE '(npm\s+run\s+build|next\s+build|npx\s+next\s+build|tsc\b|vite\s+build|cargo\s+build|go\s+build)' || exit 0
 
+# Extract stdout/stderr — still uses python3 because output can be multi-line with escapes
 OUTPUT=$(echo "$INPUT" | python3 -c "
 import sys, json
 d = json.load(sys.stdin)
 r = d.get('tool_result', {})
 out = r.get('stdout', '') + '\n' + r.get('stderr', '')
-# Also check for output field directly
 if not out.strip():
     out = str(r.get('output', ''))
 print(out)

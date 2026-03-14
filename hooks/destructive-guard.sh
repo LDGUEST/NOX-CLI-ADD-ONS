@@ -9,12 +9,13 @@
 [[ "$NOX_ALLOW_DESTRUCTIVE" == "1" ]] && exit 0
 
 INPUT=$(cat)
-TOOL=$(echo "$INPUT" | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('tool_name',''))" 2>/dev/null)
+source "$(dirname "$0")/lib-json.sh"
 
-[[ "$TOOL" != "Bash" ]] && exit 0
+TOOL=$(json_str "$INPUT" tool_name)
+[ "$TOOL" != "Bash" ] && exit 0
 
-CMD=$(echo "$INPUT" | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('tool_input',{}).get('command',''))" 2>/dev/null)
-[[ -z "$CMD" ]] && exit 0
+CMD=$(json_str "$INPUT" command)
+[ -z "$CMD" ] && exit 0
 
 # rm -rf with broad targets (/, ~, .., /*, *)
 if echo "$CMD" | grep -qE 'rm\s+(-[a-zA-Z]*r[a-zA-Z]*f|--force\s+--recursive|-[a-zA-Z]*f[a-zA-Z]*r)\s+(/|~|\.\.|\.\/\*|\*|\/[a-z]+$)'; then

@@ -8,11 +8,8 @@
 
 [[ "$NOX_SKIP_NOTIFY" == "1" ]] && exit 0
 
-INPUT=$(cat)
-TOOL=$(echo "$INPUT" | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('tool_name',''))" 2>/dev/null)
-[[ "$TOOL" != "Bash" ]] && exit 0
-
-# Record timestamp for every bash command (lightweight — just a date write)
+# Drain stdin (required) and record timestamp — no JSON parsing needed
+cat > /dev/null
 date +%s > /tmp/.claude_cmd_timer
 
 exit 0

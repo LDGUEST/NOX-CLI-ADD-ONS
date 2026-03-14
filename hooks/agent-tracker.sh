@@ -10,7 +10,9 @@ set -eu
 [ "${NOX_SKIP_AGENT_TRACKER:-0}" = "1" ] && exit 0
 
 INPUT=$(cat)
-SESSION_ID=$(echo "$INPUT" | python3 -c "import sys,json; print(json.load(sys.stdin).get('session_id','unknown'))" 2>/dev/null || echo "unknown")
+source "$(dirname "$0")/lib-json.sh"
+SESSION_ID=$(json_str "$INPUT" session_id)
+[ -z "$SESSION_ID" ] && SESSION_ID="unknown"
 
 LIMIT="${NOX_AGENT_LIMIT:-10}"
 TRACKER="/tmp/.claude_agent_tracker_${SESSION_ID}"

@@ -10,9 +10,8 @@ set -eu
 [ "${NOX_SKIP_COMMIT_LINT:-0}" = "1" ] && exit 0
 
 INPUT=$(cat)
-TOOL=$(echo "$INPUT" | python3 -c "import sys,json; print(json.load(sys.stdin).get('tool_name',''))" 2>/dev/null || echo "")
-[ "$TOOL" != "Bash" ] && exit 0
 
+# Use python3 here because command field often contains escaped quotes (git commit -m "...")
 CMD=$(echo "$INPUT" | python3 -c "import sys,json; print(json.load(sys.stdin).get('tool_input',{}).get('command',''))" 2>/dev/null || echo "")
 [ -z "$CMD" ] && exit 0
 

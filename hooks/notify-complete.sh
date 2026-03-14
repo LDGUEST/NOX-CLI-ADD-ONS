@@ -14,22 +14,22 @@
 [[ "$NOX_SKIP_NOTIFY" == "1" ]] && exit 0
 
 INPUT=$(cat)
-TOOL=$(echo "$INPUT" | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('tool_name',''))" 2>/dev/null)
-[[ "$TOOL" != "Bash" ]] && exit 0
+source "$(dirname "$0")/lib-json.sh"
 
 THRESHOLD="${NOX_NOTIFY_THRESHOLD:-60}"
-TIMER_FILE="/tmp/.claude_cmd_timer_$$"
-# Also check the generic timer file (from notify-timer-start.sh)
-for tf in "/tmp/.claude_cmd_timer" "$TIMER_FILE"; do
-    if [[ -f "$tf" ]]; then
+# Check the timer file from notify-timer-start.sh
+for tf in "/tmp/.claude_cmd_timer"; do
+    if [ -f "$tf" ]; then
         START_TIME=$(cat "$tf" 2>/dev/null)
         NOW=$(date +%s)
         ELAPSED=$((NOW - START_TIME))
         rm -f "$tf"
 
-        if [[ "$ELAPSED" -gt "$THRESHOLD" ]]; then
-            CMD=$(echo "$INPUT" | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('tool_input',{}).get('command','')[:60])" 2>/dev/null)
-            EXIT_CODE=$(echo "$INPUT" | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('tool_result',{}).get('exit_code', d.get('tool_result',{}).get('exitCode',0)))" 2>/dev/null)
+        if [ "$ELAPSED" -gt "$THRESHOLD" ] 2>/dev/null; then
+            CMD=$(json_str "$INPUT" command)
+            CMD=${CMD:0:60}  # truncate to 60 chars
+            EXIT_CODE=$(json_num "$INPUT" exit_code)
+            [ -z "$EXIT_CODE" ] && EXIT_CODE=$(json_num "$INPUT" exitCode)
 
             STATUS="completed"
             [[ "$EXIT_CODE" != "0" ]] && STATUS="FAILED"

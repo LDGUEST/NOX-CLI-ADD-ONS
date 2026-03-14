@@ -9,15 +9,9 @@
 
 INPUT=$(cat)
 
-# Fast field extraction without python3
-HOOK_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-source "$HOOK_DIR/nox-parse.sh" 2>/dev/null || exit 0
-
-TOOL=$(nox_field "tool_name" "$INPUT")
-[ -z "$TOOL" ] && exit 0
-[ "$TOOL" != "Write" ] && [ "$TOOL" != "Edit" ] && exit 0
-
-FILE_PATH=$(nox_field "file_path" "$INPUT")
+# ── Lightweight JSON extraction (no python3) ──
+source "$(dirname "$0")/lib-json.sh"
+FILE_PATH=$(json_str "$INPUT" file_path)
 [ -z "$FILE_PATH" ] && exit 0
 [ ! -f "$FILE_PATH" ] && exit 0
 

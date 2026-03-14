@@ -10,16 +10,15 @@ set -eu
 [ "${NOX_SKIP_TEST_GUARD:-0}" = "1" ] && exit 0
 
 INPUT=$(cat)
-TOOL=$(echo "$INPUT" | python3 -c "import sys,json; print(json.load(sys.stdin).get('tool_name',''))" 2>/dev/null || echo "")
-[ "$TOOL" != "Bash" ] && exit 0
+source "$(dirname "$0")/lib-json.sh"
 
-CMD=$(echo "$INPUT" | python3 -c "import sys,json; print(json.load(sys.stdin).get('tool_input',{}).get('command',''))" 2>/dev/null || echo "")
+CMD=$(json_str "$INPUT" command)
 [ -z "$CMD" ] && exit 0
 
-# Only trigger on test commands
+# Only trigger on test commands — fast exit before any heavy processing
 echo "$CMD" | grep -qiE "(npm test|npx (jest|vitest|playwright)|yarn test|pnpm test|pytest|python -m (pytest|unittest)|cargo test|go test|ruby -Itest|bundle exec rspec|bun test)" || exit 0
 
-# Get test output
+# Get test output — still uses python3 for complex nested extraction
 RESULT=$(echo "$INPUT" | python3 -c "
 import sys,json
 d=json.load(sys.stdin)

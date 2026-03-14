@@ -9,13 +9,15 @@ set -eu
 [ "${NOX_SKIP_MEMORY_SAVE:-0}" = "1" ] && exit 0
 
 INPUT=$(cat)
+source "$(dirname "$0")/lib-json.sh"
 
 # Check stop_hook_active to prevent loops
-ACTIVE=$(echo "$INPUT" | python3 -c "import sys,json; print(json.load(sys.stdin).get('stop_hook_active',False))" 2>/dev/null || echo "False")
-[ "$ACTIVE" = "True" ] && exit 0
+ACTIVE=$(json_bool "$INPUT" stop_hook_active)
+[ "$ACTIVE" = "true" ] && exit 0
 
-SESSION_ID=$(echo "$INPUT" | python3 -c "import sys,json; print(json.load(sys.stdin).get('session_id','unknown'))" 2>/dev/null || echo "unknown")
-CWD=$(echo "$INPUT" | python3 -c "import sys,json; print(json.load(sys.stdin).get('cwd',''))" 2>/dev/null || echo "")
+SESSION_ID=$(json_str "$INPUT" session_id)
+[ -z "$SESSION_ID" ] && SESSION_ID="unknown"
+CWD=$(json_str "$INPUT" cwd)
 [ -z "$CWD" ] && exit 0
 cd "$CWD" 2>/dev/null || exit 0
 
