@@ -91,16 +91,20 @@ process.stdin.on('end', () => {
     const barWidth = 10;
     const filled = Math.floor(pct * barWidth / 100);
     const rawBar = '\u2593'.repeat(filled) + '\u2591'.repeat(barWidth - filled);
+    // Bar, %, token count, and label all share the same color
     let barColor;
-    if (pct >= 70) barColor = '\x1b[31m';       // red
-    else if (pct >= 50) barColor = '\x1b[33m';   // yellow
-    else barColor = '\x1b[32m';                   // green
+    let warning;
+    if (pct >= 84) {
+      barColor = '\x1b[31m';       // red: 84%+
+      warning = 'Low';
+    } else if (pct >= 50) {
+      barColor = '\x1b[33m';       // yellow: 50-83%
+      warning = 'Ok';
+    } else {
+      barColor = '\x1b[32m';       // green: 0-49%
+      warning = 'Good';
+    }
     const bar = `${barColor}${rawBar}\x1b[0m`;
-
-    // ── Context health warning ──
-    let warning = '\x1b[32mGood\x1b[0m';
-    if (pct >= 85) warning = '\x1b[31mLow\x1b[0m';
-    else if (pct >= 70) warning = '\x1b[33mOk\x1b[0m';
 
     // ── Git branch + dirty indicator (always shown) ──
     let gitBranch = '';
@@ -172,7 +176,7 @@ process.stdin.on('end', () => {
 
     // Line 2: health + context bar leading, then costs
     const line2Parts = [];
-    line2Parts.push(`${bar} ${pct}% ${barColor}${tokenDisplay}\x1b[0m ${warning}`);
+    line2Parts.push(`${bar} ${barColor}${pct}% ${tokenDisplay} ${warning}\x1b[0m`);
     if (ghUser) line2Parts.push(`@${ghUser}`);
     if (task) line2Parts.push(`\x1b[1m${task}\x1b[0m`);
     // Session cost — pastel green (static color for Max/Pro subscribers)
