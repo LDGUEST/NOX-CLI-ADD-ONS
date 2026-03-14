@@ -146,6 +146,99 @@ else
   echo "  No hooks directory found"
 fi
 
+# ── Content Parity ───────────────────────────────────────────
+echo ""
+echo "Checking content parity across formats..."
+echo ""
+
+# Function: strip YAML frontmatter and leading/trailing whitespace from a skill file
+strip_frontmatter() {
+  local file="$1"
+  awk '
+    BEGIN { in_fm=0; past_fm=0 }
+    NR==1 && /^---[[:space:]]*$/ { in_fm=1; next }
+    in_fm && /^---[[:space:]]*$/ { in_fm=0; past_fm=1; next }
+    in_fm { next }
+    { print }
+  ' "$file" | sed -e '/./,$!d' | tac 2>/dev/null | sed -e '/./,$!d' | tac 2>/dev/null
+}
+
+# Fallback for systems without tac
+if ! command -v tac &>/dev/null; then
+  strip_frontmatter() {
+    local file="$1"
+    awk '
+      BEGIN { in_fm=0; past_fm=0 }
+      NR==1 && /^---[[:space:]]*$/ { in_fm=1; next }
+      in_fm && /^---[[:space:]]*$/ { in_fm=0; past_fm=1; next }
+      in_fm { next }
+      { print }
+    ' "$file" | sed -e '/./,$!d' | awk '{ lines[NR]=$0 } END { e=NR; while(e>0 && lines[e]~/^[[:space:]]*$/) e--; for(i=1;i<=e;i++) print lines[i] }'
+  }
+fi
+
+parity_total=0
+parity_match=0
+parity_diverged=0
+
+for skill in $all_skills; do
+  claude_file="$CLAUDE_DIR/$skill.md"
+  gemini_file="$GEMINI_DIR/$skill/SKILL.md"
+  codex_file="$CODEX_DIR/$skill/SKILL.md"
+
+  # Only check skills present in all 3 formats
+  [ -f "$claude_file" ] && [ -f "$gemini_file" ] && [ -f "$codex_file" ] || continue
+
+  parity_total=$((parity_total + 1))
+
+  claude_body=$(strip_frontmatter "$claude_file")
+  gemini_body=$(strip_frontmatter "$gemini_file")
+  codex_body=$(strip_frontmatter "$codex_file")
+
+  claude_hash=$(echo "$claude_body" | md5sum | awk '{print $1}')
+  gemini_hash=$(echo "$gemini_body" | md5sum | awk '{print $1}')
+  codex_hash=$(echo "$codex_body" | md5sum | awk '{print $1}')
+
+  claude_lines=$(echo "$claude_body" | wc -l | tr -d ' ')
+  gemini_lines=$(echo "$gemini_body" | wc -l | tr -d ' ')
+  codex_lines=$(echo "$codex_body" | wc -l | tr -d ' ')
+
+  if [ "$claude_hash" = "$gemini_hash" ] && [ "$claude_hash" = "$codex_hash" ]; then
+    parity_match=$((parity_match + 1))
+  else
+    parity_diverged=$((parity_diverged + 1))
+    warnings=$((warnings + 1))
+
+    # Determine match/differ indicators
+    if [ "$gemini_hash" = "$claude_hash" ]; then
+      gemini_indicator="matches Claude"
+    else
+      gemini_indicator="differs from Claude"
+    fi
+    if [ "$codex_hash" = "$claude_hash" ]; then
+      codex_indicator="matches Claude"
+    else
+      codex_indicator="differs from Claude"
+    fi
+
+    echo "  WARNING: Content divergence in '$skill':"
+    printf "    Claude:  %.8s  (%s lines)\n" "$claude_hash" "$claude_lines"
+    if [ "$gemini_indicator" = "matches Claude" ]; then
+      printf "    Gemini:  %.8s  (%s lines)  ✓ %s\n" "$gemini_hash" "$gemini_lines" "$gemini_indicator"
+    else
+      printf "    Gemini:  %.8s  (%s lines)  ✗ %s\n" "$gemini_hash" "$gemini_lines" "$gemini_indicator"
+    fi
+    if [ "$codex_indicator" = "matches Claude" ]; then
+      printf "    Codex:   %.8s  (%s lines)  ✓ %s\n" "$codex_hash" "$codex_lines" "$codex_indicator"
+    else
+      printf "    Codex:   %.8s  (%s lines)  ✗ %s\n" "$codex_hash" "$codex_lines" "$codex_indicator"
+    fi
+  fi
+done
+
+echo ""
+echo "  Content parity: $parity_match/$parity_total skills match across all formats, $parity_diverged diverged"
+
 # ── Summary ───────────────────────────────────────────────────
 echo ""
 echo "─────────────────────────"

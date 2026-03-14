@@ -1,0 +1,43 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run validate.sh
+        run: bash validate.sh
+
+      - name: Install shellcheck
+        run: sudo apt-get update && sudo apt-get install -y shellcheck
+
+      - name: Shellcheck hooks
+        run: shellcheck -S warning -e SC1091,SC2086 hooks/*.sh
+
+      - name: Shellcheck root scripts
+        run: shellcheck -S warning -e SC1091,SC2086 install.sh uninstall.sh update.sh validate.sh
+
+      - name: Syntax-check hook JS files
+        run: |
+          node --check hooks/statusline-unified.js
+          node --check hooks/context-monitor.js
+
+      - name: Install MCP server dependencies
+        working-directory: mcp-server
+        run: npm ci
+
+      - name: Syntax-check MCP server
+        run: node --check mcp-server/server.js
+
+      - name: Run install/uninstall tests
+        run: bash tests/test-install.sh
+
+      - name: Run hook tests
+        run: bash tests/test-hooks.sh

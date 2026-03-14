@@ -4,7 +4,7 @@
 
 [![GitHub stars](https://img.shields.io/github/stars/LDGUEST/NOX?style=flat-square&color=yellow)](https://github.com/LDGUEST/NOX/stargazers)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue?style=flat-square)](LICENSE)
-[![Skills](https://img.shields.io/badge/skills-34-blueviolet?style=flat-square)](#skill-catalog-34-skills)
+[![Skills](https://img.shields.io/badge/skills-35-blueviolet?style=flat-square)](#skill-catalog-35-skills)
 [![Agents](https://img.shields.io/badge/agents-8-orange?style=flat-square)](#agents-8)
 [![Hooks](https://img.shields.io/badge/hooks-22-green?style=flat-square)](#hooks-22)
 [![CLIs](https://img.shields.io/badge/CLIs-Claude%20%7C%20Gemini%20%7C%20Codex-lightgrey?style=flat-square)](#quick-install)
@@ -40,7 +40,7 @@
 
 # Nox
 
-34 skills + 8 agents + 22 hooks for **Claude Code**, **Gemini CLI**, and **Codex CLI**. One install, three CLIs, zero config.
+35 skills + 8 agents + 22 hooks for **Claude Code**, **Gemini CLI**, and **Codex CLI**. One install, three CLIs, zero config.
 
 Built for developers running multiple AI agents across terminals, machines, and models — Nox gives every agent the same playbook for code quality, security, deployment, and coordination.
 
@@ -135,7 +135,7 @@ bash install.sh --gemini-only
 bash install.sh --codex-only
 ```
 
-Type `/nox` in Claude Code and all 34 skills appear — same UX as `/gsd`.
+Type `/nox` in Claude Code and all 35 skills appear — same UX as `/gsd`.
 
 ## Manual Install
 
@@ -156,7 +156,7 @@ cp -r codex/skills/* ~/.codex/skills/
 
 ---
 
-## Skill Catalog (34 skills)
+## Skill Catalog (35 skills)
 
 ### Pipelines
 
@@ -219,6 +219,9 @@ cp -r codex/skills/* ~/.codex/skills/
 
 **`/nox:landing`** — Landing page generator
 > *"Create a landing page for our SaaS product"* — Wireframes layout, writes conversion copy, generates responsive components with animated hero. Adapts to your existing stack.
+
+**`/nox:swot`** — SWOT analysis
+> *"How healthy is this project really?"* — Brutally honest Strengths, Weaknesses, Opportunities, Threats assessment. Every finding references actual files and evidence. Ends with a ranked priority matrix of the top 5 actions.
 
 ---
 
@@ -372,33 +375,64 @@ Opt-in Claude Code hooks that provide continuous passive protection across ALL N
 
 ### Context Awareness & Recovery
 
-The statusline and context monitor work together to keep agents productive through the entire context window — with zero user intervention.
+Every AI coding agent has the same fatal flaw: when context fills up and auto-compact fires, the agent forgets what it was doing. It re-reads files it already analyzed, retries approaches that already failed, and the user has to re-explain the task. Nox solves this.
 
 ```
-0%                    50%              65%          83%     84-85%        100%
-│     Green "Good"     │  Yellow "Ok"   │  WARNING   │HANDOFF│auto-compact│
-│     full speed       │  full speed    │  be surgical│write  │ built-in   │
-│                      │                │            │playbook│ compactor  │
-└──────────────────────┴────────────────┴────────────┴───────┴────────────┘
-                                                         │         │
-                                                         ▼         ▼
-                                              .claude/checkpoints/  agent reads
-                                              continuation.md       playbook,
-                                              (git state +          continues
-                                               dead ends +          working
-                                               next action)
+Without Nox                              With Nox Recovery Playbook
+─────────────                            ──────────────────────────
+Context fills up → auto-compact →        Context fills up → playbook written →
+agent forgets everything →               auto-compact → agent reads playbook →
+re-reads files, retries dead ends,       knows what failed, skips dead ends,
+user has to re-explain →                 picks up exact next action →
+wastes 10+ minutes                       zero interruption
 ```
 
-**Recovery Playbook** — At 83% context usage, the hook auto-captures git state (branch, diff, commits) into a scaffold file and tells the agent to fill in the high-value sections: the user's original request, what failed and why (dead ends), key decisions, and the literal next action. The agent keeps working. When auto-compact fires, the playbook survives on disk. Post-compact, the SessionStart hook detects it, the agent reads it, acts on it, and deletes it. No user intervention at any point.
+The `context-monitor` hook and `auto-context` hook work as a pair. At **83% context usage**, the monitor auto-captures git state (branch, staged/unstaged diffs, recent commits) into a scaffold file and tells the agent to fill in the high-value sections. The agent keeps working normally. When auto-compact fires moments later, the playbook survives on disk. Post-compact, the SessionStart hook detects it, injects it, and the agent picks up exactly where it left off. No user intervention at any point.
 
-**Two-Layer Defense:** Hooks (Layer 1) run passively on every tool call. Agents (Layer 2) run at pipeline checkpoints. Together they catch issues both as they happen and in aggregate.
+Here is what a filled-in recovery playbook actually looks like:
 
+```markdown
+# Recovery Playbook
+**Branch:** main
+
+## Files Changed This Session
+Staged: hooks/context-monitor.js | 45 +++--
+Unstaged: src/auth.ts | 12 ++-
+
+## User Request
+> "Fix the JWT refresh token race condition in the auth middleware"
+
+## Dead Ends
+- Tried mutex lock on token refresh — caused deadlock with concurrent requests
+- Redis-based lock worked but added 200ms latency per request (unacceptable)
+
+## Key Decisions
+- Using optimistic locking with version stamps instead of mutex
+- Chose in-memory Map over Redis for token dedup (single-instance app)
+
+## Next Action
+Edit src/middleware/auth.ts:47 — add version check before writing refreshed token
+to response header
+
+## Remaining Steps
+1. Add version stamp to refresh response
+2. Write test for concurrent refresh scenario
+3. Run existing auth test suite
 ```
-Layer 1 (Hooks)  ─── continuous ──── every tool call ──── catches issues in real-time
-Layer 2 (Agents) ─── checkpoint ──── Step 5 of pipeline ── deep analysis on all changes
-```
 
-Especially critical during autonomous execution (`/nox:iterate`, `/nox:unloop`) where no human is watching.
+The "Dead Ends" section is what makes this work. Without it, a post-compact agent will try the mutex approach again, waste 5 minutes, hit the same deadlock, and pivot to Redis — another 5 minutes wasted. With the playbook, it skips straight to the version-stamp approach and starts editing the right file on the right line.
+
+**Context thresholds at a glance:**
+
+| Context | Status Bar | Behavior |
+|---------|-----------|----------|
+| 0-64% | `[========--------]` green | Full speed |
+| 65-82% | `[============----]` yellow | Efficiency nudge — be surgical |
+| 83-85% | `[===============-]` red | Playbook auto-generated, agent fills it in |
+| 85%+ | auto-compact fires | Built-in compactor runs, playbook survives on disk |
+| Post-compact | green (reset) | `auto-context` detects playbook, agent resumes |
+
+**Two-Layer Defense:** Hooks (Layer 1) run passively on every tool call. Agents (Layer 2) run at pipeline checkpoints. Together they catch issues both as they happen and in aggregate. Especially critical during autonomous execution (`/nox:iterate`, `/nox:unloop`) where no human is watching.
 
 **Configuration:**
 
@@ -600,14 +634,14 @@ NOX/
 │   └── nox-*.md               # 8 agent definitions
 ├── claude/                    # Claude Code (/nox:<name>)
 │   └── nox/
-│       └── *.md               # 34 skill files
+│       └── *.md               # 35 skill files
 ├── gemini/                    # Gemini CLI
 │   ├── gemini-extension.json
 │   └── skills/
-│       └── <name>/SKILL.md    # 34 skill directories
+│       └── <name>/SKILL.md    # 35 skill directories
 └── codex/                     # Codex CLI
     └── skills/
-        └── <name>/SKILL.md    # 31 skill directories
+        └── <name>/SKILL.md    # 35 skill directories
 ```
 
 ## License

@@ -43,6 +43,13 @@ done <<< "$TODOS"
 if [ "$NEW_COUNT" -gt 0 ]; then
     TOTAL=$(wc -l < "$LOG_FILE" 2>/dev/null | tr -d ' ')
     echo "📝 $NEW_COUNT new TODO(s) tracked in $FILE_PATH ($TOTAL total across project)" >&2
+
+    # State file rotation — prevent unbounded growth.
+    # Only check every ~10 appends (when total is divisible by 10) to minimize overhead.
+    MAX_LINES="${NOX_LOG_MAX_LINES:-1000}"
+    if [ $((TOTAL % 10)) -eq 0 ] && [ "$TOTAL" -gt "$MAX_LINES" ] 2>/dev/null; then
+        tail -n "$MAX_LINES" "$LOG_FILE" > "${LOG_FILE}.tmp" && mv "${LOG_FILE}.tmp" "$LOG_FILE"
+    fi
 fi
 
 exit 0
