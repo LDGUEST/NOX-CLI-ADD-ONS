@@ -258,20 +258,26 @@ M4_DB_PATH="/Users/openclaw/.claude/.nox_metrics.db"
 M4_SSH="openclaw@100.124.63.67"
 LOCAL_FALLBACK="$HOME/.claude/.nox_metrics_local.db"
 
+# Guard: sqlite3 may not be installed (e.g., Windows Git Bash)
+HAS_SQLITE3=false
+command -v sqlite3 >/dev/null 2>&1 && HAS_SQLITE3=true
+
 if [ "$MACHINE" = "m4" ]; then
     # We ARE on M4 — write directly
-    sqlite3 "$DB" "$CREATE_SQL" 2>/dev/null
-    sqlite3 "$DB" "$INSERT_SQL" 2>/dev/null
-    sqlite3 "$DB" "$CLEANUP_SQL" 2>/dev/null
+    if [ "$HAS_SQLITE3" = true ]; then
+        sqlite3 "$DB" "$CREATE_SQL" 2>/dev/null || true
+        sqlite3 "$DB" "$INSERT_SQL" 2>/dev/null || true
+        sqlite3 "$DB" "$CLEANUP_SQL" 2>/dev/null || true
+    fi
 else
     # Remote machine — SSH insert to M4's central DB
     if ssh -o ConnectTimeout=3 -o BatchMode=yes "$M4_SSH" \
         "sqlite3 '$M4_DB_PATH' \"$CREATE_SQL\" && sqlite3 '$M4_DB_PATH' \"$INSERT_SQL\"" 2>/dev/null; then
         true  # Success — logged to central DB
-    else
+    elif [ "$HAS_SQLITE3" = true ]; then
         # M4 offline — write locally for later merge
-        sqlite3 "$LOCAL_FALLBACK" "$CREATE_SQL" 2>/dev/null
-        sqlite3 "$LOCAL_FALLBACK" "$INSERT_SQL" 2>/dev/null
+        sqlite3 "$LOCAL_FALLBACK" "$CREATE_SQL" 2>/dev/null || true
+        sqlite3 "$LOCAL_FALLBACK" "$INSERT_SQL" 2>/dev/null || true
     fi
 fi
 

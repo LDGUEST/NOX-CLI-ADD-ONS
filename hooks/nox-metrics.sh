@@ -7,6 +7,11 @@ set -eu
 
 DB="${NOX_COST_DB:-$HOME/.claude/.nox_metrics.db}"
 
+if ! command -v sqlite3 >/dev/null 2>&1; then
+    echo "sqlite3 not found. Install it to use metrics queries."
+    exit 1
+fi
+
 if [ ! -f "$DB" ]; then
     echo "No metrics DB found at $DB"
     echo "The session-cost-tracker hook creates this after your first session."
