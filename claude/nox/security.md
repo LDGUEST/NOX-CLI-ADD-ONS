@@ -2,6 +2,8 @@
 name: security
 description: Performs a comprehensive security assessment — OWASP Top 10 static analysis with optional live penetration testing. Use before releases or when auditing code for vulnerabilities.
 argument-hint: "[scope]"
+context: fork
+agent: general-purpose
 metadata:
   author: nox
   version: "1.6"

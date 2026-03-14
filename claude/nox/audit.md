@@ -2,6 +2,8 @@
 name: audit
 description: Performs a rigorous technical audit of the codebase — vulnerabilities, performance, bad practices. Read-only, no code written. Use when assessing code quality, preparing a release, or investigating technical debt.
 argument-hint: "[scope]"
+context: fork
+agent: general-purpose
 metadata:
   author: nox
   version: "1.6"

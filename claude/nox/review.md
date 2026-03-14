@@ -2,6 +2,8 @@
 name: review
 description: Performs a PR-style code review on current changes or specified files, acting as a senior reviewer focused on shipping quality. Use before committing or opening a pull request.
 argument-hint: "[file-or-directory]"
+context: fork
+agent: general-purpose
 metadata:
   author: nox
   version: "1.6"

@@ -3,6 +3,8 @@ name: iterate
 description: Deploys specialized sub-agents to execute tasks and recursively self-correct until the objective is fully complete. Use for complex, multi-step tasks requiring autonomous execution and verification.
 disable-model-invocation: true
 argument-hint: "[objective]"
+context: fork
+agent: general-purpose
 metadata:
   author: nox
   version: "1.6"

@@ -2,6 +2,8 @@
 name: scan
 description: Auto-detects project type and dispatches NOX agents in parallel for a full codebase health check. Use when running a comprehensive quality, security, and dependency audit in a single command.
 argument-hint: "[scope]"
+context: fork
+agent: general-purpose
 metadata:
   author: nox
   version: "1.6"

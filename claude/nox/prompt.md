@@ -2,6 +2,8 @@
 name: prompt
 description: Audits and optimizes LLM prompts in the codebase for reliability, cost efficiency, safety, and output quality. Use when reviewing AI-integrated code or hardening prompt engineering.
 argument-hint: "[file-or-pattern]"
+context: fork
+agent: general-purpose
 metadata:
   author: nox
   version: "1.6"

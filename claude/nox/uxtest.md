@@ -2,6 +2,8 @@
 name: uxtest
 description: Performs comprehensive UX testing via Playwright — user journeys, responsive design, accessibility, and interaction bugs. Use when verifying UI quality before a release or after major frontend changes.
 argument-hint: "[url-or-component]"
+context: fork
+agent: general-purpose
 metadata:
   author: nox
   version: "1.6"

@@ -2,6 +2,8 @@
 name: swot
 description: Performs a brutally honest SWOT analysis of the codebase — strengths worth protecting, weaknesses to fix, opportunities being missed, threats that could sink the project. Use when deciding what to build next, evaluating project health, or preparing for strategic decisions.
 argument-hint: "[focus-area]"
+context: fork
+agent: general-purpose
 metadata:
   author: nox
   version: "1.0"

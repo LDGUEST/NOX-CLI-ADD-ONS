@@ -2,6 +2,8 @@
 name: monitorlive
 description: Launches a background agent that watches live application logs in real-time. Use during active testing or debugging to surface errors and anomalies as they occur.
 argument-hint: "[log-source]"
+context: fork
+agent: general-purpose
 metadata:
   author: nox
   version: "1.6"
