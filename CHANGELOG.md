@@ -4,6 +4,30 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [2.5.0] - 2026-03-14
+
+### Added
+- **6 new skills** across all 3 CLIs (Claude, Gemini, Codex):
+  - `/nox:doc` — generate documentation from code (JSDoc, docstrings, README sections)
+  - `/nox:api` — design and scaffold REST/GraphQL API endpoints from a spec
+  - `/nox:schema` — database schema designer (ER diagrams, migration planning, normalization)
+  - `/nox:env` — environment variable auditor (missing vars, secrets in code, `.env.example` generation)
+  - `/nox:explain` — onboarding guide generator (architecture mapping, data flow, "start here" pointers)
+  - `/nox:a11y` — accessibility audit (WCAG 2.1 AA, ARIA, keyboard nav, color contrast)
+- **Hook health dashboard** — `nox-metrics.sh health` validates hook files exist, are executable, checks settings.json references match actual files, reports broken hooks
+- **SQLite fallback to JSONL** — `session-cost-tracker.sh` falls back to `.nox_metrics.jsonl` when sqlite3 is unavailable (Windows Git Bash)
+- **JSONL metrics queries** — `nox-metrics.sh` supports `summary` and `recent` subcommands via grep/awk when sqlite3 is missing
+- **Smoke test suite** (`tests/test-smoke.sh`) — validates skill parity across CLIs, frontmatter integrity, hook file presence, lib-json sourcing
+- Skill count: 35 → 41
+
+### Changed
+- **Smart hook routing** — added early-exit fast paths to 6 hooks (todo-tracker, drift-detector, debug-reminder, build-tracker, test-regression-guard, secret-scanner) reducing wasted JSON parsing on irrelevant events
+- Updated `help-forge` skill catalog to include all 41 skills
+- Updated README badges, skill catalog, and structure diagram for v2.5
+
+### Fixed
+- Removed phantom `branch-protect.sh` reference from settings.json hook config (file never existed, caused PreToolUse:Bash errors on every Bash tool call)
+
 ## [2.0.0] - 2026-03-14
 
 ### Added

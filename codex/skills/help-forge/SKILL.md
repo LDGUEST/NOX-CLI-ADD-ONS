@@ -3,12 +3,13 @@ name: help-forge
 description: Lists all available NOX skills with descriptions and usage examples. Use when exploring available commands or looking for the right skill for a task.
 ---
 
+
 List all available Nox skills. For each one, provide:
 - The skill name (slash command)
 - A one-line description of what it does
 - When to use it
 
-## Nox Skills Catalog (33 skills + 8 agents + 19 hooks)
+## Nox Skills Catalog (41 skills + 8 agents + 23 hooks)
 
 ### Pipelines
 | Skill | Description |
@@ -25,6 +26,7 @@ List all available Nox skills. For each one, provide:
 | `/nox:perf` | Performance profiling — bundle size, queries, rendering, memory |
 | `/nox:uxtest` | Comprehensive Playwright UX testing — visual audit, interactions, accessibility, performance |
 | `/nox:prompt` | Audit and optimize LLM prompts for reliability, cost, safety, and output quality |
+| `/nox:a11y` | Accessibility audit — WCAG 2.1 AA compliance, ARIA, keyboard nav, color contrast |
 
 ### Development Workflow
 | Skill | Description |
@@ -32,6 +34,7 @@ List all available Nox skills. For each one, provide:
 | `/nox:tdd` | Red-green-refactor enforcement — test-first development and test generation |
 | `/nox:commit` | Generate Conventional Commits message from staged changes |
 | `/nox:changelog` | Generate CHANGELOG.md from git history |
+| `/nox:doc` | Generate documentation from code — JSDoc, docstrings, README sections, API reference |
 | `/nox:iterate` | Autonomous sub-agent execution with verification loop |
 
 ### Architecture & Planning
@@ -40,6 +43,8 @@ List all available Nox skills. For each one, provide:
 | `/nox:brainstorm` | Structured divergent thinking — explore 3+ approaches before converging on architecture |
 | `/nox:architect` | Design-first gate — no code until architecture is approved |
 | `/nox:questions` | Extract all clarifying questions before writing any code |
+| `/nox:api` | Design and scaffold REST/GraphQL API endpoints from a spec |
+| `/nox:explain` | Onboarding guide generator — explain any codebase to a new contributor |
 | `/nox:landing` | Draft a conversion-focused landing page from scratch |
 
 ### DevOps & Infrastructure
@@ -50,6 +55,8 @@ List all available Nox skills. For each one, provide:
 | `/nox:push` | Push to production with platform auto-detection and retry logic |
 | `/nox:diagnose` | Cross-machine system health check, status report, and error investigation |
 | `/nox:monitorlive` | Real-time log monitoring — watches live traffic, surfaces errors and anomalies during testing |
+| `/nox:schema` | Database schema designer — ER diagrams, migration planning, normalization review |
+| `/nox:env` | Environment variable auditor — missing vars, secrets in code, `.env.example` generation |
 | `/nox:migrate` | Database migration generator — auto-detects ORM and framework |
 
 ### Security

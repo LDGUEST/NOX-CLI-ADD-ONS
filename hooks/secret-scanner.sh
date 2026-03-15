@@ -16,11 +16,11 @@
 
 INPUT=$(cat)
 
+# ── Smart routing: bail before sourcing lib-json.sh if tool is irrelevant ──
+echo "$INPUT" | grep -qE '"tool_name" *: *"(Write|Edit)"' || exit 0
+
 # ── Lightweight JSON extraction (no python3) ──
 source "$(dirname "$0")/lib-json.sh"
-
-TOOL=$(json_str "$INPUT" tool_name)
-[ "$TOOL" != "Write" ] && [ "$TOOL" != "Edit" ] && exit 0
 
 FILE=$(json_str "$INPUT" file_path)
 [ -z "$FILE" ] && exit 0

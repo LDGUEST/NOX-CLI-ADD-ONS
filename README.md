@@ -4,8 +4,8 @@
 
 [![GitHub stars](https://img.shields.io/github/stars/LDGUEST/NOX-CLI-ADD-ONS?style=flat-square&color=yellow)](https://github.com/LDGUEST/NOX-CLI-ADD-ONS/stargazers)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue?style=flat-square)](LICENSE)
-[![Version](https://img.shields.io/badge/version-2.0.0-blue?style=flat-square)](CHANGELOG.md)
-[![Skills](https://img.shields.io/badge/skills-35-blueviolet?style=flat-square)](#skill-catalog-35-skills)
+[![Version](https://img.shields.io/badge/version-2.5.0-blue?style=flat-square)](CHANGELOG.md)
+[![Skills](https://img.shields.io/badge/skills-41-blueviolet?style=flat-square)](#skill-catalog-41-skills)
 [![Agents](https://img.shields.io/badge/agents-8-orange?style=flat-square)](#agents-8)
 [![Hooks](https://img.shields.io/badge/hooks-23-green?style=flat-square)](#hooks-23)
 [![CLIs](https://img.shields.io/badge/CLIs-Claude%20%7C%20Gemini%20%7C%20Codex-lightgrey?style=flat-square)](#quick-install)
@@ -41,7 +41,7 @@
 
 # Nox
 
-35 skills + 8 agents + 23 hooks for **Claude Code**, **Gemini CLI**, and **Codex CLI**. One install, three CLIs, zero config.
+41 skills + 8 agents + 23 hooks for **Claude Code**, **Gemini CLI**, and **Codex CLI**. One install, three CLIs, zero config.
 
 Built for developers running multiple AI agents across terminals, machines, and models — Nox gives every agent the same playbook for code quality, security, deployment, and coordination.
 
@@ -136,7 +136,7 @@ bash install.sh --gemini-only
 bash install.sh --codex-only
 ```
 
-Type `/nox` in Claude Code and all 35 skills appear — same UX as `/gsd`.
+Type `/nox` in Claude Code and all 41 skills appear — same UX as `/gsd`.
 
 ## Manual Install
 
@@ -157,7 +157,7 @@ cp -r codex/skills/* ~/.codex/skills/
 
 ---
 
-## Skill Catalog (35 skills)
+## Skill Catalog (41 skills)
 
 ### Pipelines
 
@@ -183,6 +183,9 @@ cp -r codex/skills/* ~/.codex/skills/
 **`/nox:perf`** — Performance profiling
 > *"Why is the dashboard so slow?"* — Profiles frontend (bundle size, re-renders, Core Web Vitals) and backend (N+1 queries, missing indexes, memory leaks). Returns impact estimates with fixes.
 
+**`/nox:a11y`** — Accessibility audit
+> *"Check this app for WCAG compliance"* — Scans all components for WCAG 2.1 AA violations: missing ARIA roles/labels, keyboard navigation gaps, color contrast failures, focus management issues, missing alt text. Returns a severity-rated report with file paths, line numbers, and specific fix suggestions per finding.
+
 **`/nox:uxtest`** — Comprehensive UX testing
 > *"Test the entire frontend before we ship"* — Uses Playwright to run a full UX audit: screenshots at 4 breakpoints (375/768/1280/1920px), interaction testing on every button/form/modal, accessibility scan (Axe), performance snapshot (LCP, CLS, JS errors), and critical user flow simulation. Outputs a structured report with screenshots and pass/fail per flow.
 
@@ -202,6 +205,9 @@ cp -r codex/skills/* ~/.codex/skills/
 **`/nox:changelog`** — Generate changelog
 > *"Generate a changelog for the v2.0 release"* — Reads git history since last tag, categorizes commits (Added/Changed/Fixed/Security), outputs Keep a Changelog format.
 
+**`/nox:doc`** — Documentation generator
+> *"Document the public API for this module"* — Scans for undocumented exports, functions, and classes. Generates JSDoc, docstrings, or language-appropriate inline docs. Respects existing doc style. Can also generate README sections, API reference tables, and usage examples.
+
 **`/nox:iterate`** — Autonomous execution
 > *"Fix all the TypeScript errors in this project"* — Decomposes the goal into steps, executes each one, verifies, self-corrects up to 10 cycles per step. Doesn't stop until done.
 
@@ -220,6 +226,12 @@ cp -r codex/skills/* ~/.codex/skills/
 
 **`/nox:landing`** — Landing page generator
 > *"Create a landing page for our SaaS product"* — Wireframes layout, writes conversion copy, generates responsive components with animated hero. Adapts to your existing stack.
+
+**`/nox:api`** — API endpoint designer
+> *"Scaffold CRUD endpoints for the orders resource"* — Detects your framework (Next.js App Router, Express, FastAPI, etc.) and generates route handlers, TypeScript types, input validation, error handling, and OpenAPI-compatible documentation. Follows REST conventions with proper status codes and plural resources. Supports GraphQL schema generation.
+
+**`/nox:explain`** — Codebase onboarding guide
+> *"Explain this project to a new contributor"* — Maps architecture, data flow, key abstractions, and entry points. Generates a structured onboarding document with "start here" pointers, dependency diagram, and glossary of domain terms. Adapts depth to scope — full project, single module, or specific feature.
 
 **`/nox:swot`** — SWOT analysis
 > *"How healthy is this project really?"* — Brutally honest Strengths, Weaknesses, Opportunities, Threats assessment. Every finding references actual files and evidence. Ends with a ranked priority matrix of the top 5 actions.
@@ -242,6 +254,12 @@ cp -r codex/skills/* ~/.codex/skills/
 
 **`/nox:monitorlive`** — Real-time log monitoring
 > *"Watch the logs while I test this"* — Auto-detects your log source (Vercel, Docker, PM2, systemd, log files), tails in real-time, and surfaces errors, slow requests, auth anomalies, and traffic patterns. Deduplicates noise, correlates incidents, suggests fixes inline.
+
+**`/nox:schema`** — Database schema designer
+> *"Design the schema for a multi-tenant SaaS app"* — Generates ER diagrams (ASCII), migration plans with rollback strategy, and normalization review. Detects your ORM (Prisma, Drizzle, Django, SQLAlchemy, raw SQL) and outputs in the correct format. Modes: design new schemas, review existing ones, plan migrations, or visualize relationships.
+
+**`/nox:env`** — Environment variable auditor
+> *"Audit env vars before deploy"* — Cross-references code references against `.env` files. Finds missing variables, detects secrets committed to code, flags client-side exposure of server secrets (`NEXT_PUBLIC_` with secret values), and generates `.env.example` with descriptions. Compares across environments (dev/staging/prod).
 
 **`/nox:migrate`** — Database migration generator
 > *"Add a status column to the orders table"* — Auto-detects ORM (Prisma, Drizzle, Alembic, Django, Supabase), generates UP + DOWN migrations, warns about destructive operations and table locks.
@@ -270,13 +288,13 @@ cp -r codex/skills/* ~/.codex/skills/
 > *"Forget the old API spec — here's the new one"* — Purges stale assumptions and confirms exactly what it's discarding. Essential when switching between agents with conflicting context.
 
 **`/nox:help-forge`** — Skill catalog
-> *"What Nox commands are available?"* — Lists all 34 skills organized by category.
+> *"What Nox commands are available?"* — Lists all 41 skills organized by category.
 
 **`/nox:skill-create`** — Create new Nox skills
 > *"I want to add a new slash command to Nox"* — Meta-skill that scaffolds a new skill in the correct format across all 3 CLIs. Guides you through naming, content structure, registration in help-forge and README, validation checklist, and deployment to all machines. Prevents the most common mistakes (stale counts, missing formats, vague instructions).
 
 **`/nox:guardrails`** — Safety guardrails for all CLIs
-> Inline safety checks that mirror Claude Code's 19 hooks for Gemini and Codex users. Destructive command blocking, secret scanning, branch protection, commit linting, drift detection, test regression tracking, and more. Automatically referenced by pipeline and autonomous skills. Claude users get these via hooks; Gemini/Codex users get them via this skill.
+> Inline safety checks that mirror Claude Code's 23 hooks for Gemini and Codex users. Destructive command blocking, secret scanning, branch protection, commit linting, drift detection, test regression tracking, and more. Automatically referenced by pipeline and autonomous skills. Claude users get these via hooks; Gemini/Codex users get them via this skill.
 
 ---
 
@@ -543,7 +561,8 @@ Add this to your `~/.claude/settings.json` under `"hooks"`:
       {
         "hooks": [
           {"type": "command", "command": "bash ~/.claude/hooks/session-logger.sh"},
-          {"type": "command", "command": "bash ~/.claude/hooks/memory-auto-save.sh"}
+          {"type": "command", "command": "bash ~/.claude/hooks/memory-auto-save.sh"},
+          {"type": "command", "command": "bash ~/.claude/hooks/session-cost-tracker.sh"}
         ]
       }
     ]
@@ -641,14 +660,14 @@ NOX/
 │   └── nox-*.md               # 8 agent definitions
 ├── claude/                    # Claude Code (/nox:<name>)
 │   └── nox/
-│       └── *.md               # 35 skill files
+│       └── *.md               # 41 skill files
 ├── gemini/                    # Gemini CLI
 │   ├── gemini-extension.json
 │   └── skills/
-│       └── <name>/SKILL.md    # 35 skill directories
+│       └── <name>/SKILL.md    # 41 skill directories
 └── codex/                     # Codex CLI
     └── skills/
-        └── <name>/SKILL.md    # 35 skill directories
+        └── <name>/SKILL.md    # 41 skill directories
 ```
 
 ## License

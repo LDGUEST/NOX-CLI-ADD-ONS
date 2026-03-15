@@ -11,11 +11,15 @@
 [ "${NOX_SKIP_BUILD_TRACKER:-0}" = "1" ] && exit 0
 
 INPUT=$(cat)
+
+# ── Smart routing: bail before sourcing lib-json.sh if no build keywords in input ──
+echo "$INPUT" | grep -qE '(npm.+build|next.+build|tsc|vite.+build|cargo.+build|go.+build)' || exit 0
+
 source "$(dirname "$0")/lib-json.sh"
 
 CMD=$(json_str "$INPUT" command)
 
-# Only trigger on build commands — fast exit before any heavy processing
+# Only trigger on build commands — precise check after extraction
 echo "$CMD" | grep -qE '(npm\s+run\s+build|next\s+build|npx\s+next\s+build|tsc\b|vite\s+build|cargo\s+build|go\s+build)' || exit 0
 
 # Extract stdout/stderr — still uses python3 because output can be multi-line with escapes

@@ -8,6 +8,10 @@
 # Install: bash install.sh --with-hooks
 # Config:  NOX_SKIP_COST_TRACKER=1 to disable
 #          NOX_COST_DB=path to override DB (default: ~/.claude/.nox_metrics.db)
+#          NOX_COST_JSONL=path to override JSONL fallback (default: ~/.claude/.nox_metrics.jsonl)
+#
+# Storage: Prefers sqlite3. When sqlite3 is not available (e.g., Windows Git Bash),
+#          falls back to JSON Lines (.nox_metrics.jsonl) with identical fields.
 #
 # Query examples:
 #   sqlite3 ~/.claude/.nox_metrics.db "SELECT hooks_active, COUNT(*), ROUND(AVG(session_cost),4), ROUND(AVG(tokens_used),0) FROM sessions GROUP BY hooks_active"
@@ -213,6 +217,9 @@ if [ "$MACHINE" = "unknown" ]; then
     esac
 fi
 
+# ── Build JSON record (used by both SQLite and JSONL backends) ──
+JSON_RECORD="{\"session_id\":\"$SESSION_ID\",\"timestamp\":\"$TIMESTAMP\",\"machine\":\"$MACHINE\",\"project\":\"$PROJECT\",\"branch\":\"$BRANCH\",\"model\":\"$MODEL\",\"session_cost\":$SESSION_COST,\"tokens_used\":$TOKENS_USED,\"input_tokens\":$INPUT_TOKENS,\"output_tokens\":$OUTPUT_TOKENS,\"cache_read_tokens\":$CACHE_READ,\"cache_write_tokens\":$CACHE_WRITE,\"cost_per_1k\":$COST_PER_1K,\"tool_calls\":$TOOL_CALLS,\"files_changed\":$FILES_CHANGED,\"commits\":$COMMITS_THIS_SESSION,\"duration_min\":$DURATION_MIN,\"context_used_pct\":$CONTEXT_USED_PCT,\"hooks_active\":$HOOKS_ACTIVE,\"skills_used\":\"$SKILLS_USED\"}"
+
 # ── SQL for creating table + inserting ──
 CREATE_SQL="CREATE TABLE IF NOT EXISTS sessions (
     session_id TEXT PRIMARY KEY,
@@ -262,12 +269,30 @@ LOCAL_FALLBACK="$HOME/.claude/.nox_metrics_local.db"
 HAS_SQLITE3=false
 command -v sqlite3 >/dev/null 2>&1 && HAS_SQLITE3=true
 
+# ── JSONL fallback path ──
+JSONL_FILE="${NOX_COST_JSONL:-$HOME/.claude/.nox_metrics.jsonl}"
+
+# ── Write session data ──
+write_jsonl_fallback() {
+    mkdir -p "$(dirname "$JSONL_FILE")"
+    echo "$JSON_RECORD" >> "$JSONL_FILE"
+    # Keep last 1000 entries
+    if [ -f "$JSONL_FILE" ]; then
+        LINE_COUNT=$(wc -l < "$JSONL_FILE" | tr -d ' ')
+        if [ "$LINE_COUNT" -gt 1000 ]; then
+            tail -n 1000 "$JSONL_FILE" > "${JSONL_FILE}.tmp" && mv "${JSONL_FILE}.tmp" "$JSONL_FILE"
+        fi
+    fi
+}
+
 if [ "$MACHINE" = "m4" ]; then
     # We ARE on M4 — write directly
     if [ "$HAS_SQLITE3" = true ]; then
         sqlite3 "$DB" "$CREATE_SQL" 2>/dev/null || true
         sqlite3 "$DB" "$INSERT_SQL" 2>/dev/null || true
         sqlite3 "$DB" "$CLEANUP_SQL" 2>/dev/null || true
+    else
+        write_jsonl_fallback
     fi
 else
     # Remote machine — SSH insert to M4's central DB
@@ -278,6 +303,9 @@ else
         # M4 offline — write locally for later merge
         sqlite3 "$LOCAL_FALLBACK" "$CREATE_SQL" 2>/dev/null || true
         sqlite3 "$LOCAL_FALLBACK" "$INSERT_SQL" 2>/dev/null || true
+    else
+        # No sqlite3 available — JSONL fallback
+        write_jsonl_fallback
     fi
 fi
 

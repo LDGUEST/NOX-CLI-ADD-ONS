@@ -1,0 +1,126 @@
+---
+name: a11y
+description: Runs a WCAG 2.1 AA accessibility audit on UI components — checks ARIA, keyboard nav, color contrast, focus management, and semantic HTML. Use when shipping user-facing features or auditing for compliance.
+---
+
+Perform a WCAG 2.1 AA accessibility audit on the specified scope (component, page, directory, or full project). Scan source code for accessibility violations and produce a structured report with severity ratings and fix suggestions.
+
+## Process
+
+1. **Determine scope** — If given a specific component or directory, focus there. Otherwise, scan all UI components.
+2. **Detect UI framework** — React, Vue, Svelte, Angular, plain HTML — adjust checks accordingly.
+3. **Run all audit categories** below against the source code.
+4. **Generate the report** with findings grouped by severity.
+
+## Audit Categories
+
+### 1. Semantic HTML
+
+- **Heading hierarchy** — `h1` through `h6` used in order, no skipped levels
+- **Landmark regions** — `<main>`, `<nav>`, `<header>`, `<footer>`, `<aside>` used appropriately
+- **Lists** — Related items use `<ul>`/`<ol>`/`<li>`, not `<div>` chains
+- **Buttons vs links** — `<button>` for actions, `<a>` for navigation. No `<div onClick>` without a role.
+- **Tables** — Data tables use `<th>`, `scope`, and `<caption>`. Layout tables flagged as violations.
+
+### 2. ARIA
+
+- **Missing roles** — Interactive custom elements without `role` attribute
+- **Missing labels** — `aria-label` or `aria-labelledby` absent on icon buttons, inputs, regions
+- **Invalid ARIA** — `aria-*` attributes that don't match the element's role
+- **Redundant ARIA** — `role="button"` on a `<button>`, `role="link"` on an `<a>` (unnecessary)
+- **Live regions** — Dynamic content updates without `aria-live` announcement
+- **Dialog/modal** — Missing `aria-modal`, `role="dialog"`, or focus trap
+
+### 3. Keyboard Navigation
+
+- **Tab order** — Interactive elements reachable via Tab in logical order
+- **Focus indicators** — `:focus-visible` styles present, not removed with `outline: none` without replacement
+- **Keyboard handlers** — `onClick` without corresponding `onKeyDown`/`onKeyUp` for custom interactive elements
+- **Skip links** — "Skip to main content" link present on pages with navigation
+- **Escape to close** — Modals, dropdowns, and popovers close on `Escape` key
+- **Focus trapping** — Modals trap focus within the dialog while open
+- **Focus restoration** — Focus returns to trigger element when modal/popover closes
+
+### 4. Images & Media
+
+- **Alt text** — All `<img>` elements have `alt` attribute. Decorative images use `alt=""`
+- **Meaningful alt text** — Alt text describes the image content, not "image" or the filename
+- **SVG accessibility** — SVGs have `role="img"` and `aria-label`, or `aria-hidden="true"` if decorative
+- **Video/audio** — Captions or transcript available (flag if media exists without accessibility markup)
+
+### 5. Forms
+
+- **Labels** — Every input has an associated `<label>` (via `htmlFor`/`for` or wrapping)
+- **Error messages** — Validation errors linked to inputs via `aria-describedby`
+- **Required fields** — Marked with `aria-required="true"` or `required` attribute
+- **Fieldsets** — Related inputs (radio groups, checkbox groups) wrapped in `<fieldset>` with `<legend>`
+- **Autocomplete** — Common fields (name, email, address) have appropriate `autoComplete` attribute
+
+### 6. Color & Contrast
+
+- **Text contrast** — Flag hardcoded color combinations that may fail WCAG AA (4.5:1 for normal text, 3:1 for large text)
+- **Color-only indicators** — Information conveyed by color alone without text/icon alternative (error states, status indicators)
+- **Focus visibility** — Focus indicators have sufficient contrast against the background
+
+### 7. Motion & Animation
+
+- **Reduced motion** — Animations respect `prefers-reduced-motion` media query
+- **Auto-playing content** — No auto-playing video/audio without user control
+- **Flashing content** — No content that flashes more than 3 times per second
+
+## Severity Levels
+
+| Level | Definition | Examples |
+|-------|-----------|----------|
+| **Critical** | Blocks access for users with disabilities | Missing form labels, no keyboard access, images without alt text |
+| **Major** | Significant barrier, workaround may exist | Broken tab order, missing focus indicators, no skip link |
+| **Minor** | Inconvenience, doesn't block access | Redundant ARIA, suboptimal heading hierarchy, missing autocomplete |
+| **Enhancement** | Best practice, beyond AA requirements | Missing `prefers-reduced-motion`, no live region for toast notifications |
+
+## Output Format
+
+```
+ACCESSIBILITY AUDIT REPORT
+===========================
+Scope:     src/components/
+Framework: React + Tailwind
+Standard:  WCAG 2.1 AA
+
+SUMMARY
+-------
+Critical:     X findings
+Major:        X findings
+Minor:        X findings
+Enhancements: X suggestions
+
+CRITICAL FINDINGS
+-----------------
+[C1] Missing form label
+     File: src/components/SearchBar.tsx:14
+     Issue: <input> has no associated <label> or aria-label
+     Fix: Add aria-label="Search" to the input element
+
+[C2] Image without alt text
+     File: src/components/UserAvatar.tsx:8
+     Issue: <img> missing alt attribute
+     Fix: Add alt={`${user.name}'s avatar`} or alt="" if decorative
+
+MAJOR FINDINGS
+--------------
+[M1] Focus indicator removed
+     File: src/styles/globals.css:12
+     Issue: `outline: none` applied globally without replacement
+     Fix: Replace with :focus-visible styles that provide visible indication
+
+...
+```
+
+## Rules
+
+- **Source code analysis only** — This skill reads source files. It does not run a browser or execute JavaScript. Flag issues it can detect statically.
+- **No false positives** — Only flag issues you can confirm from the code. If a component might receive an `aria-label` via props, note it as "verify" rather than "missing."
+- **Respect component libraries** — If using Radix, Headless UI, or similar accessible primitives, check that they're configured correctly rather than flagging their internal patterns.
+- **Prioritize impact** — Order findings by how many users are affected and how severely.
+
+---
+Nox

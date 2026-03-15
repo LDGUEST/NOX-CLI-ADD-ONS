@@ -12,6 +12,11 @@
 [[ "$NOX_SKIP_DEBUG_REMINDER" == "1" ]] && exit 0
 
 INPUT=$(cat)
+
+# ── Smart routing: bail early if command succeeded (exit_code 0 or absent) ──
+# Avoids sourcing lib-json.sh for the majority of Bash calls that succeed
+echo "$INPUT" | grep -qE '"(exit_code|exitCode|code)" *: *[1-9]' || exit 0
+
 source "$(dirname "$0")/lib-json.sh"
 
 # Get exit code — check multiple field names

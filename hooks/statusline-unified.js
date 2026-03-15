@@ -169,7 +169,7 @@ process.stdin.on('end', () => {
     const line1Parts = [];
     if (gsdUpdate) line1Parts.push(gsdUpdate);
     let projectInfo = `[${projectName}]`;
-    if (gitBranch) projectInfo += ` ${gitBranch}`;
+    if (gitBranch) projectInfo += ` \u2022 ${gitBranch}`;
     if (gitDirty) projectInfo += gitDirty;
     line1Parts.push(`${projectInfo} \u2022 ${model}`);
     const line1 = line1Parts.join(' | ');

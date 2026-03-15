@@ -11,12 +11,16 @@ set -eu
 [ "${NOX_SKIP_TEST_GUARD:-0}" = "1" ] && exit 0
 
 INPUT=$(cat)
+
+# ── Smart routing: bail before sourcing lib-json.sh if no test keywords in input ──
+echo "$INPUT" | grep -qiE '(npm.test|jest|vitest|playwright|yarn.test|pnpm.test|pytest|unittest|cargo.test|go.test|rspec|bun.test)' || exit 0
+
 source "$(dirname "$0")/lib-json.sh"
 
 CMD=$(json_str "$INPUT" command)
 [ -z "$CMD" ] && exit 0
 
-# Only trigger on test commands — fast exit before any heavy processing
+# Only trigger on test commands — precise check after extraction
 echo "$CMD" | grep -qiE "(npm test|npx (jest|vitest|playwright)|yarn test|pnpm test|pytest|python -m (pytest|unittest)|cargo test|go test|ruby -Itest|bundle exec rspec|bun test)" || exit 0
 
 # Get test output — still uses python3 for complex nested extraction

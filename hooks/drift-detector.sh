@@ -15,6 +15,9 @@
 
 INPUT=$(cat)
 
+# ── Smart routing: bail before sourcing lib-json.sh if tool is irrelevant ──
+echo "$INPUT" | grep -qE '"tool_name" *: *"(Write|Edit)"' || exit 0
+
 # ── Lightweight JSON extraction (no python3) ──
 source "$(dirname "$0")/lib-json.sh"
 SESSION_ID=$(json_str "$INPUT" session_id)
