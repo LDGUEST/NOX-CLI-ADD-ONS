@@ -53,11 +53,12 @@ CACHE_READ=0
 CACHE_WRITE=0
 
 if [ -n "$TRANSCRIPT" ] && [ -f "$TRANSCRIPT" ]; then
-    # Extract token/cost data from transcript JSONL
-    # Usage lives in message.usage on assistant-type entries
-    # Model lives in message.model on assistant-type entries
-    read -r TOKENS_USED SESSION_COST MODEL INPUT_TOKENS OUTPUT_TOKENS CACHE_READ CACHE_WRITE <<< "$(python3 -c "
-import json
+    # Extract token/cost data + duration from transcript JSONL
+    # PERF: tail -5000 limits parsing to last 5000 lines — avoids reading
+    # multi-MB transcripts from long sessions. Token/cost data accumulates
+    # so the latest entries have the most accurate totals.
+    read -r TOKENS_USED SESSION_COST MODEL INPUT_TOKENS OUTPUT_TOKENS CACHE_READ CACHE_WRITE DURATION_MIN <<< "$(tail -5000 "$TRANSCRIPT" | python3 -c "
+import sys, json
 
 total_input = 0
 total_output = 0
@@ -65,58 +66,62 @@ total_cache_read = 0
 total_cache_write = 0
 total_cost = 0.0
 model = 'unknown'
+first_ts = last_ts = None
 
-with open('$TRANSCRIPT', 'r') as f:
-    for line in f:
-        line = line.strip()
-        if not line:
-            continue
-        try:
-            entry = json.loads(line)
-        except (json.JSONDecodeError, ValueError):
-            continue
+for line in sys.stdin:
+    line = line.strip()
+    if not line: continue
+    try:
+        entry = json.loads(line)
+    except (json.JSONDecodeError, ValueError):
+        continue
 
-        # Assistant messages have message.usage and message.model
-        msg = entry.get('message', {})
-        if isinstance(msg, dict):
-            if model == 'unknown' and msg.get('model'):
-                model = msg['model']
+    # Timestamps for duration
+    ts = entry.get('timestamp')
+    if ts:
+        if first_ts is None: first_ts = ts
+        last_ts = ts
 
-            usage = msg.get('usage', {})
-            if usage:
-                total_input += usage.get('input_tokens', 0)
-                total_output += usage.get('output_tokens', 0)
-                total_cache_read += usage.get('cache_read_input_tokens', 0)
-                total_cache_write += usage.get('cache_creation_input_tokens', 0)
-
-        # Also check top-level (some entry types)
-        usage = entry.get('usage', {})
-        if isinstance(usage, dict) and usage:
+    msg = entry.get('message', {})
+    if isinstance(msg, dict):
+        if model == 'unknown' and msg.get('model'):
+            model = msg['model']
+        usage = msg.get('usage', {})
+        if usage:
             total_input += usage.get('input_tokens', 0)
             total_output += usage.get('output_tokens', 0)
             total_cache_read += usage.get('cache_read_input_tokens', 0)
             total_cache_write += usage.get('cache_creation_input_tokens', 0)
 
-        # Cost data if present
-        for key in ('costUSD', 'cost_usd', 'cost'):
-            c = entry.get(key, 0)
-            if c:
-                total_cost += float(c)
-                break
+    usage = entry.get('usage', {})
+    if isinstance(usage, dict) and usage:
+        total_input += usage.get('input_tokens', 0)
+        total_output += usage.get('output_tokens', 0)
+        total_cache_read += usage.get('cache_read_input_tokens', 0)
+        total_cache_write += usage.get('cache_creation_input_tokens', 0)
+
+    for key in ('costUSD', 'cost_usd', 'cost'):
+        c = entry.get(key, 0)
+        if c:
+            total_cost += float(c)
+            break
+
+# Duration
+dur = 0
+if first_ts and last_ts:
+    try:
+        dur = max(1, int((float(last_ts) - float(first_ts)) / 60))
+    except (ValueError, TypeError):
+        try:
+            from datetime import datetime
+            t1 = datetime.fromisoformat(str(first_ts).replace('Z','+00:00'))
+            t2 = datetime.fromisoformat(str(last_ts).replace('Z','+00:00'))
+            dur = max(1, int((t2-t1).total_seconds() / 60))
+        except: pass
 
 total_tokens = total_input + total_output + total_cache_read + total_cache_write
-model_clean = model.replace(' ', '_')
-print(f'{total_tokens} {total_cost:.6f} {model_clean} {total_input} {total_output} {total_cache_read} {total_cache_write}')
-" 2>/dev/null || echo "0 0 unknown 0 0 0 0")"
-fi
-
-# Fallback: read from statusline bridge file if transcript parsing got nothing
-if [ "$TOKENS_USED" = "0" ] && [ -n "$SESSION_ID" ]; then
-    BRIDGE="/tmp/claude-ctx-${SESSION_ID}.json"
-    if [ -f "$BRIDGE" ]; then
-        # Bridge has remaining_percentage and used_pct from last statusline update
-        true  # We'll get context_used_pct from this below
-    fi
+print(f'{total_tokens} {total_cost:.6f} {model.replace(chr(32),chr(95))} {total_input} {total_output} {total_cache_read} {total_cache_write} {dur}')
+" 2>/dev/null || echo "0 0 unknown 0 0 0 0 0")"
 fi
 
 # ── Detect hooks state ──
@@ -140,38 +145,7 @@ if [ -n "$CWD" ] && [ -d "$CWD" ]; then
     fi
 fi
 
-# ── Session duration from transcript timestamps ──
-DURATION_MIN=0
-if [ -n "$TRANSCRIPT" ] && [ -f "$TRANSCRIPT" ]; then
-    DURATION_MIN=$(python3 -c "
-import json
-first_ts = last_ts = None
-with open('$TRANSCRIPT') as f:
-    for line in f:
-        line = line.strip()
-        if not line: continue
-        try:
-            ts = json.loads(line).get('timestamp')
-            if ts:
-                if first_ts is None: first_ts = ts
-                last_ts = ts
-        except: continue
-if first_ts and last_ts:
-    # timestamps are ISO strings or epoch — try both
-    try:
-        diff = float(last_ts) - float(first_ts)
-        print(max(1, int(diff / 60)))
-    except (ValueError, TypeError):
-        from datetime import datetime
-        try:
-            t1 = datetime.fromisoformat(first_ts.replace('Z','+00:00'))
-            t2 = datetime.fromisoformat(last_ts.replace('Z','+00:00'))
-            print(max(1, int((t2-t1).total_seconds() / 60)))
-        except: print(0)
-else:
-    print(0)
-" 2>/dev/null || echo "0")
-fi
+# Duration is now parsed in the single python3 call above
 
 # ── Tool call count from hook counter ──
 TOOL_CALLS=0
@@ -295,8 +269,8 @@ if [ "$MACHINE" = "m4" ]; then
         write_jsonl_fallback
     fi
 else
-    # Remote machine — SSH insert to M4's central DB
-    if ssh -o ConnectTimeout=3 -o BatchMode=yes "$M4_SSH" \
+    # Remote machine — try SSH insert to M4's central DB (hard 5s timeout)
+    if timeout 5 ssh -o ConnectTimeout=2 -o BatchMode=yes -o ServerAliveInterval=2 -o ServerAliveCountMax=1 "$M4_SSH" \
         "sqlite3 '$M4_DB_PATH' \"$CREATE_SQL\" && sqlite3 '$M4_DB_PATH' \"$INSERT_SQL\"" 2>/dev/null; then
         true  # Success — logged to central DB
     elif [ "$HAS_SQLITE3" = true ]; then
