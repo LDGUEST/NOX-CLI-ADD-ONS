@@ -1,6 +1,6 @@
 ---
 name: full-phase
-description: Orchestrates a full plan-to-ship pipeline with quality gates at every step — architecture, implementation, tests, security, and deploy. Use for non-trivial features requiring end-to-end delivery.
+description: Orchestrates a full plan-to-ship pipeline with quality gates at every step — architecture, implementation, tests, security, and deploy. Use when building a feature from scratch, shipping end-to-end, or running a complete development cycle with automated review at each stage.
 ---
 
 Execute a complete plan-to-ship pipeline with quality gates at every step. This skill orchestrates both GSD and Nox commands into a single automated workflow.

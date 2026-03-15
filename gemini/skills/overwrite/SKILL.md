@@ -1,6 +1,6 @@
 ---
 name: overwrite
-description: Treats the latest user input as an absolute state update, purging conflicting prior context for a specific component. Use when previous architectural decisions must be completely replaced.
+description: Replaces all prior context and decisions about a specific component with the latest input as the new source of truth. Use when changing direction on a feature, overriding earlier architecture choices, or telling the agent to forget the old approach and start fresh.
 ---
 
 Treat my latest input as an absolute state update. Overwrite and purge any conflicting previous context, rules, or architectural decisions we've discussed regarding this specific component.
