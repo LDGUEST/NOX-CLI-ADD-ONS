@@ -7,13 +7,21 @@ DEBUGGING.md
 # Planning
 .planning/
 .claude/
+.context/
+
+# Secrets / env
+.env
+.env.*
+*.pem
+*.key
 
 # OS
 .DS_Store
 Thumbs.db
+desktop.ini
 
 # Dependencies
-mcp-server/node_modules/
+node_modules/
 
 # Editor
 *.swp
@@ -21,15 +29,9 @@ mcp-server/node_modules/
 *~
 .vscode/
 .idea/
-# START AI Agent Symlinks
-.agents/skills/*.bak
-.claude/commands/
-.claude/skills/
-.cursor/mcp.json
-.cursor/skills/
-.mcp.json
-AGENTS.md
-AGENTS.md.bak.*
-CLAUDE.md
-CLAUDE.md.bak.*
-# END AI Agent Symlinks
+.cursor/
+
+# Logs / metrics
+*.log
+*.sqlite
+*.db
